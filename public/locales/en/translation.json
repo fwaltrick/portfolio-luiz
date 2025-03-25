@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "home": "Projects",
+    "about": "About Luiz",
+    "contact": "Contact"
+  },
+  "projects": {
+    "mova": {
+      "title": "Mova",
+      "category": "Brand Identity"
+    },
+    "kimi": {
+      "title": "Kimi",
+      "category": "Web Design"
+    },
+    "palatnik": {
+      "title": "Palatnik",
+      "category": "Interactive Design"
+    },
+    "blumen": {
+      "title": "Blumen",
+      "category": "Product Design"
+    }
+  },
+  "project": {
+    "viewProject": "View Project"
+  },
+  "filter": {
+    "filterBy": "Filter by",
+    "clearAll": "Clear all",
+    "activeFilters": "Active filters"
+  },
+  "category.webDesign": "Web Design",
+  "category.brandIdentity": "Brand Identity",
+  "category.interactiveDesign": "Interactive Design",
+  "category.productDesign": "Product Design",
+  "filter.filterBy": "Filter by",
+  "filter.clearAll": "Clear all"
+}

@@ -1,0 +1,32 @@
+/* Importando fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Staatliches&display=swap');
+
+/* Importação do Tailwind */
+@import 'tailwindcss';
+
+/* Configuração de fontes base */
+@layer base {
+  body {
+    @apply bg-white text-gray-900 font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-[Staatliches];
+  }
+}
+
+/* Classes utilitárias personalizadas */
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors;
+  }
+}

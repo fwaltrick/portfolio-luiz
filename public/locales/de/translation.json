@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "home": "Projekte",
+    "about": "Über Luiz",
+    "contact": "Kontakt"
+  },
+  "projects": {
+    "mova": {
+      "title": "Mova-se! Clima e Deslocamentos",
+      "category": "Markenidentität"
+    },
+    "kimi": {
+      "title": "Kimi Nii – Nas Nuvens",
+      "category": "Webdesign"
+    },
+    "palatnik": {
+      "title": "Abraham Palatnik: Die Neuerfindung der Malerei",
+      "category": "Interaktives Design"
+    },
+    "blumen": {
+      "title": "Die Blumen von Gestern",
+      "category": "Produktdesign"
+    }
+  },
+  "project": {
+    "viewProject": "Projekt ansehen"
+  },
+  "filter": {
+    "filterBy": "Filtern nach",
+    "clearAll": "Alle löschen",
+    "activeFilters": "Aktive Filter"
+  },
+  "category.webDesign": "Webdesign",
+  "category.brandIdentity": "Markenidentität",
+  "category.interactiveDesign": "Interaktives Design",
+  "category.productDesign": "Produktdesign",
+  "filter.filterBy": "Filtern nach",
+  "filter.clearAll": "Alle löschen"
+}

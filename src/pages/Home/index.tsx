@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import CategoryFilter from '../../components/ui/CategoryFilter'
 import ProjectGrid from '../../components/ui/ProjectGrid'
-import ProjectGridSkeleton from '../../components/ui/ProjectSkeleton'
 import { Project } from '../../types'
 
 interface HomeProps {
@@ -10,7 +9,7 @@ interface HomeProps {
   loading: boolean
 }
 
-const Home: React.FC<HomeProps> = ({ projects, loading }) => {
+const HomePage: React.FC<HomeProps> = ({ projects, loading }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 
   // Handler para mudança de categoria
@@ -54,4 +53,4 @@ const Home: React.FC<HomeProps> = ({ projects, loading }) => {
   )
 }
 
-export default Home
+export default HomePage

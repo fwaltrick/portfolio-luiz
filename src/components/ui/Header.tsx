@@ -1,12 +1,40 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from './LanguageSwitcher'
+import './Header.css'
 
 const Header = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Verifica se estamos em uma página de detalhes de projeto
+  const isProjectDetailPage = location.pathname.includes('/project/')
+
+  // Estado para controlar a transparência do header ao rolar a página
+  const [scrolled, setScrolled] = useState(false)
+
+  // Efeito para controlar a transparência do header ao rolar
+  useEffect(() => {
+    if (!isProjectDetailPage) return
+
+    const handleScroll = () => {
+      // Adiciona classe quando a página é rolada além de 100px
+      if (window.scrollY > 100) {
+        setScrolled(true)
+      } else {
+        setScrolled(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+
+    // Limpeza ao desmontar
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [isProjectDetailPage])
 
   // Função para verificar se um link está ativo
   const isActive = (path: string) => {
@@ -15,14 +43,23 @@ const Header = () => {
     return false
   }
 
+  // Classes condicionais para o header
+  const headerClasses = `w-full py-4 ${
+    isProjectDetailPage
+      ? `project-detail-header ${scrolled ? 'scrolled' : ''}`
+      : 'border-b border-gray-200'
+  }`
+
   return (
-    <header className="w-full py-4 border-b border-gray-200">
+    <header className={headerClasses}>
       <div className="container-custom flex items-center justify-between">
         {/* Logo à esquerda */}
         <div>
           <Link
             to="/"
-            className="tracking-(0.015em) text-4xl font-[Staatliches]"
+            className={`tracking-(0.015em) text-4xl font-[Staatliches] ${
+              isProjectDetailPage ? 'text-white header-logo' : ''
+            }`}
           >
             LUIZ DOMINGUEZ
           </Link>
@@ -34,7 +71,7 @@ const Header = () => {
             to="/"
             className={`text-md font-sans hover:underline ${
               isActive('/') ? 'font-bold' : ''
-            }`}
+            } ${isProjectDetailPage ? 'text-white header-link' : ''}`}
           >
             {t('nav.home')}
           </Link>
@@ -42,13 +79,15 @@ const Header = () => {
             to="/about"
             className={`text-md font-sans hover:underline ${
               isActive('/about') ? 'font-bold' : ''
-            }`}
+            } ${isProjectDetailPage ? 'text-white header-link' : ''}`}
           >
             {t('nav.about')}
           </Link>
           <a
             href="mailto:domluiz@gmail.com"
-            className="text-md font-sans hover:underline"
+            className={`text-md font-sans hover:underline ${
+              isProjectDetailPage ? 'text-white header-link' : ''
+            }`}
           >
             {t('nav.contact')}
           </a>
@@ -59,7 +98,7 @@ const Header = () => {
         <div className="md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2"
+            className={`p-2 ${isProjectDetailPage ? 'text-white' : ''}`}
             aria-label="Menu"
           >
             {mobileMenuOpen ? (
@@ -99,7 +138,11 @@ const Header = () => {
 
       {/* Menu Mobile Expandido - Só aparece quando o menu está aberto e em telas pequenas */}
       {mobileMenuOpen && (
-        <div className="md:hidden mt-4 py-4 border-t">
+        <div
+          className={`md:hidden mt-4 py-4 border-t ${
+            isProjectDetailPage ? 'bg-black bg-opacity-90 text-white' : ''
+          }`}
+        >
           <div className="container-custom">
             <nav className="flex flex-col gap-4">
               <Link

@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { AnimatePresence } from 'framer-motion'
 import AboutPage from './pages/About'
 import ProjectDetail from './pages/ProjectDetail'
-import Home from './pages/Home'
+import HomePage from './pages/Home'
 import Header from './components/ui/Header'
 import Footer from './components/ui/Footer'
 import { Project } from './types'
@@ -20,12 +21,6 @@ const App: React.FC = () => {
     const updateProjects = async () => {
       try {
         setLoading(true)
-
-        // Use os projetos do arquivo projectsData.ts
-        console.log(
-          'Loading projects from projectsData.ts:',
-          projectsFromFile.map((p) => p.slug),
-        )
 
         // Traduza os projetos
         const translatedProjects = projectsFromFile.map((project) => ({
@@ -51,17 +46,19 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
-        <Routes>
-          <Route
-            path="/"
-            element={<Home projects={projects} loading={loading} />}
-          />
-          <Route path="/about" element={<AboutPage />} />
-          <Route
-            path="/project/:slug"
-            element={<ProjectDetail projects={projects} />}
-          />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route
+              path="/"
+              element={<HomePage projects={projects} loading={loading} />}
+            />
+            <Route path="/about" element={<AboutPage />} />
+            <Route
+              path="/project/:slug"
+              element={<ProjectDetail projects={projects} />}
+            />
+          </Routes>
+        </AnimatePresence>
       </main>
       <Footer />
     </div>

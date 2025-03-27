@@ -5,7 +5,12 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['Staatliches', 'Impact', 'Haettenschweiler', 'sans-serif'],
+        staatliches: [
+          'Staatliches',
+          'Impact',
+          'Haettenschweiler',
+          'sans-serif',
+        ],
       },
     },
   },

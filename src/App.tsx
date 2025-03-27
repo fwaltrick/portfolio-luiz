@@ -1,67 +1,51 @@
-// App.tsx
+// src/App.tsx
 import React, { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Home from './pages/Home'
+import { useTranslation } from 'react-i18next'
 import AboutPage from './pages/About'
 import ProjectDetail from './pages/ProjectDetail'
+import Home from './pages/Home'
 import Header from './components/ui/Header'
 import Footer from './components/ui/Footer'
-
-// Project interface
-interface Project {
-  id: string
-  title: string
-  category: string
-  imageUrl: string
-  slug: string
-}
+import { Project } from './types'
+import { projects as projectsFromFile } from './data/projectsData'
 
 const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const { t, i18n } = useTranslation()
 
+  // Efeito para carregar projetos
   useEffect(() => {
-    const fetchProjects = async () => {
+    const updateProjects = async () => {
       try {
-        // Get the current language from localStorage or default to 'de'
-        const currentLang = localStorage.getItem('i18nextLng') || 'de'
+        setLoading(true)
 
-        // Fetch the translation file
-        const response = await fetch(`/locales/${currentLang}/translation.json`)
-
-        if (!response.ok) {
-          throw new Error(`Failed to load translation file: ${response.status}`)
-        }
-
-        const translationData = await response.json()
-
-        // Extract project data from the translation file
-        const projectsData = translationData.projects || {}
-
-        // Transform the project data into our Project interface format
-        const formattedProjects: Project[] = Object.entries(projectsData).map(
-          ([key, value]: [string, any]) => ({
-            id: key,
-            title: value.title,
-            category: value.category,
-            imageUrl: `/images/projects/${key}-00-thumbnail.jpg`, // Assuming a consistent image path pattern
-            slug: key,
-          }),
+        // Use os projetos do arquivo projectsData.ts
+        console.log(
+          'Loading projects from projectsData.ts:',
+          projectsFromFile.map((p) => p.slug),
         )
 
+        // Traduza os projetos
+        const translatedProjects = projectsFromFile.map((project) => ({
+          ...project,
+          title: project.titleKey ? t(project.titleKey) : project.title,
+          category: project.categoryKey
+            ? t(project.categoryKey)
+            : project.category,
+        }))
 
-        setProjects(formattedProjects)
+        setProjects(translatedProjects)
+        setLoading(false)
       } catch (error) {
-        console.error('Error loading projects from translation file:', error)
-        // Fallback to empty array
-        setProjects([])
-      } finally {
+        console.error('Error processing projects:', error)
         setLoading(false)
       }
     }
 
-    fetchProjects()
-  }, [])
+    updateProjects()
+  }, [t, i18n.language])
 
   return (
     <div className="min-h-screen flex flex-col">

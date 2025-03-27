@@ -20,6 +20,10 @@
     "blumen": {
       "title": "Blumen",
       "category": "Product Design"
+    },
+    "india": {
+      "title": "India!",
+      "category": "Exhibition"
     }
   },
   "project": {
@@ -34,6 +38,7 @@
   "category.brandIdentity": "Brand Identity",
   "category.interactiveDesign": "Interactive Design",
   "category.productDesign": "Product Design",
+  "category.exhibition": "Exhibition",
   "filter.filterBy": "Filter by",
   "filter.clearAll": "Clear all"
 }

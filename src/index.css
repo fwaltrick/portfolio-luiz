@@ -1,11 +1,8 @@
-/* Importando fontes do Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Staatliches&display=swap');
-
-/* Importação do Tailwind */
+/* index.css - Para Tailwind CSS v4 */
 @import 'tailwindcss';
 
-/* Configuração de fontes base */
-@layer base {
+/* Suas camadas personalizadas */
+@utility base {
   body {
     @apply bg-white text-gray-900 font-sans;
   }
@@ -20,13 +17,54 @@
   }
 }
 
-/* Classes utilitárias personalizadas */
-@layer components {
-  .container-custom {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
+@utility container-custom {
+  @apply max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8;
+}
 
-  .btn {
-    @apply inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors;
-  }
+@utility btn {
+  @apply inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors;
+}
+
+@theme {
+  --font-staatliches: 'Staatliches', 'Impact', sans-serif;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Staatliches';
+  src: url('/fonts/Staatliches-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }

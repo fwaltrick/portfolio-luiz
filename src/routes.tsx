@@ -1,8 +1,9 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom'
 import App from './App'
-import HomePage from './pages/Home'
+import Home from './pages/Home'
 import ProjectDetailPage from './pages/ProjectDetail'
 import AboutPage from './pages/About'
+import { projects } from './data/projectsData'
 
 // Definindo as rotas
 const routes: RouteObject[] = [
@@ -12,7 +13,7 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <Home />,
       },
       {
         path: 'project/:slug',

@@ -1,25 +1,39 @@
+// src/components/ui/ProjectGrid.tsx
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-
-interface Project {
-  id: string
-  titleKey: string
-  categoryKey: string
-  imageUrl: string
-  slug: string
-}
+import { Project } from '../../types'
 
 interface ProjectGridProps {
   projects: Project[]
 }
 
 const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
+  console.log('ProjectGrid received projects:', projects)
+
   const { t } = useTranslation()
 
+  // Função para gerar o caminho correto da imagem usando a nova estrutura
+  const getProjectImagePath = (project: Project) => {
+    // Verifica se o projeto já tem um URL completo
+    if (
+      project.imageUrl &&
+      (project.imageUrl.startsWith('http') || project.imageUrl.startsWith('/'))
+    ) {
+      // Se for um caminho na estrutura antiga, converte para a nova estrutura
+      if (project.imageUrl.includes('-thumbnail.jpg')) {
+        return `/images/projects/${project.slug}/thumbnail.jpg`
+      }
+      return project.imageUrl
+    }
+
+    // Caso contrário, usa a nova estrutura de pastas
+    return `/images/projects/${project.slug}/thumbnail.jpg`
+  }
+
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8">
+    <div className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 w-full pt-6 pb-12 md:pt-6 md:pb-16 lg:pt-6 lg:pb-20">
         <AnimatePresence>
           {projects.map((project) => (
@@ -29,14 +43,12 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
-              layout // This enables smooth position changes when items are filtered
+              layout
             >
               <Link
                 to={`/project/${project.slug}`}
                 className="block rounded-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                aria-label={`${t(project.titleKey)} - ${t(
-                  project.categoryKey,
-                )}`}
+                aria-label={`${project.title} - ${project.category}`} // Use valores já traduzidos
               >
                 <motion.div
                   className="relative w-full aspect-[4/3] overflow-hidden"
@@ -44,10 +56,10 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
                   whileFocus="hover"
                   initial="initial"
                 >
-                  {/* Project image with subtle zoom effect */}
+                  {/* Project image with subtle zoom effect - CAMINHO ATUALIZADO */}
                   <motion.img
-                    src={project.imageUrl}
-                    alt={t(project.titleKey)}
+                    src={getProjectImagePath(project)}
+                    alt={project.title} // Use valor já traduzido
                     className="absolute inset-0 w-full h-full object-cover"
                     variants={{
                       initial: { scale: 1 },
@@ -55,7 +67,9 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
                     }}
                     transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                     onError={(e) => {
-                      console.error(`Failed to load image: ${project.imageUrl}`)
+                      console.error(
+                        `Failed to load image: ${getProjectImagePath(project)}`,
+                      )
                       e.currentTarget.parentElement?.classList.add('bg-black')
                     }}
                   />
@@ -99,7 +113,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
                           },
                         }}
                       >
-                        {t(project.titleKey)}
+                        {project.title} {/* Use valor já traduzido */}
                       </motion.h3>
                     </div>
 
@@ -127,7 +141,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
                           },
                         }}
                       >
-                        {t(project.categoryKey)}
+                        {project.category} {/* Use valor já traduzido */}
                       </motion.span>
                     </div>
                   </div>

@@ -20,6 +20,10 @@
     "blumen": {
       "title": "Die Blumen von Gestern",
       "category": "Produktdesign"
+    },
+    "india": {
+      "title": "India!",
+      "category": "Ausstellung"
     }
   },
   "project": {
@@ -34,6 +38,7 @@
   "category.brandIdentity": "Markenidentität",
   "category.interactiveDesign": "Interaktives Design",
   "category.productDesign": "Produktdesign",
+  "category.exhibition": "Ausstellung",
   "filter.filterBy": "Filtern nach",
   "filter.clearAll": "Alle löschen"
 }

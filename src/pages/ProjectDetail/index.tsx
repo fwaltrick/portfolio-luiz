@@ -4,12 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Project } from '../../types'
 import './ProjectDetail.css'
+import useProjects from '../../hooks/useProjects'
 
-interface ProjectDetailProps {
-  projects: Project[]
-}
-
-const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
+const ProjectDetailPage: React.FC = () => {
+  const { projects, loading: projectsLoading } = useProjects()
   const { slug } = useParams<{ slug: string }>()
   const { t, ready } = useTranslation()
   const navigate = useNavigate()
@@ -20,60 +18,62 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
   const [project, setProject] = useState<Project | undefined>()
   const [imageError, setImageError] = useState<Record<string, boolean>>({})
   const [transitionComplete, setTransitionComplete] = useState(false)
+  const [webpSupported, setWebpSupported] = useState(false)
+
+  // Verificar suporte a WebP quando o componente montar
+  useEffect(() => {
+    const checkWebPSupport = () => {
+      const elem = document.createElement('canvas')
+      if (elem.getContext && elem.getContext('2d')) {
+        return elem.toDataURL('image/webp').indexOf('data:image/webp') === 0
+      }
+      return false
+    }
+
+    setWebpSupported(checkWebPSupport())
+  }, [])
 
   // Configurar o Intersection Observer para a imagem
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        // Quando o elemento entrar no viewport
         if (entries[0].isIntersecting) {
           setImageVisible(true)
-          // Desconectar o observer após ativar a animação uma vez
           observer.disconnect()
         }
       },
       {
-        // Ativar quando 10% da imagem estiver visível
         threshold: 0.1,
-        // Começar a observar um pouco antes da imagem aparecer
         rootMargin: '100px 0px',
       },
     )
 
-    // Observar o elemento de referência
     if (imageRef.current) {
       observer.observe(imageRef.current)
     }
 
-    // Limpar o observer quando o componente desmontar
     return () => {
       observer.disconnect()
     }
-  }, [imageRef.current, loading]) // Re-executar quando a referência ou o loading mudar
+  }, [loading])
 
-  // Efeito para notificar que estamos em uma página de projeto
+  // Efeitos do ciclo de vida e outros useEffects permanecem os mesmos...
   useEffect(() => {
-    // Adiciona classe ao body
     document.body.classList.add('project-detail-page')
-
-    // Força a remoção de qualquer margem ou padding indesejado
     document.body.style.margin = '0'
     document.body.style.padding = '0'
     document.body.style.overflowX = 'hidden'
 
-    // Seleciona o elemento root e remove margens
     const rootElement = document.getElementById('root')
     if (rootElement) {
       rootElement.style.margin = '0'
       rootElement.style.padding = '0'
     }
 
-    // Adiciona um pequeno atraso para dar tempo da página renderizar
     const timer = setTimeout(() => {
       setTransitionComplete(true)
     }, 400)
 
-    // Limpeza ao desmontar
     return () => {
       document.body.classList.remove('project-detail-page')
       document.body.style.margin = ''
@@ -91,7 +91,7 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
 
   // Find project by slug
   useEffect(() => {
-    if (ready && slug) {
+    if (ready && slug && projects) {
       console.log('Looking for project with slug:', slug)
 
       const foundProject = projects.find((p) => p.slug === slug)
@@ -99,8 +99,11 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
 
       if (foundProject) {
         setProject(foundProject)
+
+        // Pré-carregar a imagem de capa para melhorar o LCP
+        const preloadImage = new Image()
+        preloadImage.src = getOriginalImagePath('cover')
       } else {
-        // Projeto não encontrado, redirecionar para a página inicial
         navigate('/')
       }
 
@@ -108,34 +111,94 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
     }
   }, [ready, slug, navigate, projects])
 
-  // Função para gerar caminhos de imagem
-  const getProjectImagePath = (imageType: string, index?: number) => {
+  // Função para obter o caminho da imagem original (sem otimização)
+  const getOriginalImagePath = (imageType: string, index?: number): string => {
     if (!project) return ''
 
     switch (imageType) {
-      case 'thumbnail':
-        return `/images/projects/${project.slug}/thumbnail.jpg`
       case 'cover':
+      case 'thumbnail':
         return `/images/projects/${project.slug}/cover.jpg`
       case 'img01':
         return `/images/projects/${project.slug}/img01.jpg`
       case 'gallery':
-        return `/images/projects/${project.slug}/${index
-          ?.toString()
-          .padStart(2, '0')}.jpg`
+        if (index) {
+          return `/images/projects/${project.slug}/${String(index).padStart(
+            2,
+            '0',
+          )}.jpg`
+        }
+        return ''
       default:
-        return (
-          project.imageUrl || `/images/projects/${project.slug}/thumbnail.jpg`
-        )
+        return project.imageUrl || `/images/projects/${project.slug}/cover.jpg`
     }
   }
 
-  // Função para lidar com erros de imagem
-  const handleImageError = (imageKey: string) => {
-    setImageError((prev) => ({ ...prev, [imageKey]: true }))
+  // Função otimizada para obter imagens em alta qualidade
+  const getHighQualityImagePath = (
+    imageType: string,
+    format: 'webp' | 'jpg' = 'webp',
+  ): string => {
+    if (!project) return ''
+
+    // Se WebP não for suportado, usar JPG
+    if (!webpSupported) {
+      format = 'jpg'
+    }
+
+    // Para imagens principais, usar a versão original (sem redimensionamento)
+    // para garantir máxima qualidade
+    let baseName = ''
+    switch (imageType) {
+      case 'cover':
+      case 'thumbnail':
+        baseName = 'cover'
+        break
+      case 'img01':
+        baseName = 'img-01'
+        break
+      default:
+        baseName = 'cover'
+    }
+
+    // Usar a versão original (não redimensionada) para máxima qualidade
+    return `/images/optimized/${project.slug}/${baseName}.${format}`
   }
 
-  if (loading) {
+  // Função específica para imagens da galeria - alta qualidade
+  const getGalleryImagePath = (
+    index: number,
+    format: 'webp' | 'jpg' = 'webp',
+  ): string => {
+    if (!project) return ''
+
+    // Se WebP não for suportado, usar JPG
+    const actualFormat = webpSupported ? format : 'jpg'
+
+    // Formatar o índice com zero à esquerda
+    const formattedIndex = String(index).padStart(2, '0')
+
+    // Usar a versão original para máxima qualidade
+    return `/images/optimized/${project.slug}/${formattedIndex}.${actualFormat}`
+  }
+
+  // Função para lidar com erros de imagem
+  const handleImageError = (
+    imageKey: string,
+    element?: HTMLImageElement,
+    fallbackSrc?: string,
+  ) => {
+    console.log(`Erro ao carregar imagem: ${imageKey}`)
+    setImageError((prev) => ({ ...prev, [imageKey]: true }))
+
+    // Se um elemento e fallback foram fornecidos, tente o fallback
+    if (element && fallbackSrc) {
+      console.log(`Tentando fallback: ${fallbackSrc}`)
+      element.src = fallbackSrc
+    }
+  }
+
+  if (loading || projectsLoading) {
     return <div className="container py-12">Loading...</div>
   }
 
@@ -152,18 +215,41 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
         }`}
       ></div>
 
-      {/* Imagem de capa full width */}
+      {/* Imagem de capa em alta qualidade */}
       <div className="hero-image-container">
         {!imageError['cover'] ? (
-          <img
-            src={getProjectImagePath('cover')}
-            alt={t(project.title)}
-            className="hero-image"
-            onError={() => handleImageError('cover')}
-          />
+          <picture>
+            {/* Versão WebP em alta qualidade */}
+            <source
+              srcSet={getHighQualityImagePath('cover', 'webp')}
+              type="image/webp"
+            />
+            {/* Versão JPG em alta qualidade */}
+            <source
+              srcSet={getHighQualityImagePath('cover', 'jpg')}
+              type="image/jpeg"
+            />
+
+            {/* Fallback */}
+            <img
+              src={getHighQualityImagePath('cover', 'jpg')}
+              alt={t(project.title)}
+              className="hero-image"
+              onError={(e) => {
+                console.log(
+                  'Erro ao carregar imagem de capa otimizada, tentando original',
+                )
+                handleImageError(
+                  'cover',
+                  e.currentTarget,
+                  getOriginalImagePath('cover'),
+                )
+              }}
+            />
+          </picture>
         ) : (
           <img
-            src={getProjectImagePath('thumbnail')}
+            src={getOriginalImagePath('cover')}
             alt={t(project.title)}
             className="hero-image"
             onError={() => {
@@ -191,10 +277,9 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
       {/* Ficha Técnica - Estilo Bipartido com Tailwind */}
       <div className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Coluna esquerda - Créditos técnicos (fundo preto) */}
+          {/* Conteúdo da ficha técnica permanece o mesmo... */}
           <div className="bg-black text-white">
             <div className="p-16 md:p-16 sm:p-8">
-              {/* Título com animação básica */}
               <motion.div
                 className="mb-16"
                 initial={{ opacity: 0, x: -40 }}
@@ -253,7 +338,6 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
             </div>
           </div>
 
-          {/* Coluna direita - Descrição do projeto (fundo branco) */}
           <div className="bg-white text-black">
             <div className="p-16 md:p-16 sm:p-8 pr-24 md:pr-24 sm:pr-8">
               <div className="max-w-lg">
@@ -287,7 +371,7 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
         </div>
       </div>
 
-      {/* Imagem img01 abaixo da ficha técnica - com animação ativada pelo Intersection Observer */}
+      {/* Imagem img01 em alta qualidade */}
       <div className="w-full image-container" ref={imageRef}>
         <motion.div
           initial={{ opacity: 0, y: 60 }}
@@ -298,17 +382,47 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
           }}
           className="w-full"
         >
-          <img
-            src={getProjectImagePath('img01')}
-            alt={`${t(project.title)} - Detail`}
-            className="w-full h-auto"
-            onError={() => handleImageError('img01')}
-          />
+          {!imageError['img01'] ? (
+            <picture>
+              {/* Versão WebP em alta qualidade */}
+              <source
+                srcSet={getHighQualityImagePath('img01', 'webp')}
+                type="image/webp"
+              />
+              {/* Versão JPG em alta qualidade */}
+              <source
+                srcSet={getHighQualityImagePath('img01', 'jpg')}
+                type="image/jpeg"
+              />
+              {/* Fallback */}
+              <img
+                src={getHighQualityImagePath('img01', 'jpg')}
+                alt={`${t(project.title)} - Detail`}
+                className="w-full h-auto"
+                onError={(e) => {
+                  console.log(
+                    'Erro ao carregar imagem otimizada img-01, tentando original',
+                  )
+                  handleImageError(
+                    'img01',
+                    e.currentTarget,
+                    getOriginalImagePath('img01'),
+                  )
+                }}
+              />
+            </picture>
+          ) : (
+            <img
+              src={getOriginalImagePath('img01')}
+              alt={`${t(project.title)} - Detail`}
+              className="w-full h-auto"
+            />
+          )}
         </motion.div>
       </div>
 
-      {/* Galeria de imagens adicionais */}
-      <div className="container py-12">
+      {/* Galeria de imagens adicionais em alta qualidade */}
+      <div className="container-custom py-12">
         <h2 className="text-2xl font-bold mb-6">
           {t('projectDetail.gallery', 'Galeria')}
         </h2>
@@ -320,14 +434,35 @@ const ProjectDetailPage: React.FC<ProjectDetailProps> = ({ projects }) => {
             if (imageError[imageKey]) return null
 
             return (
-              <img
-                key={index}
-                src={getProjectImagePath('gallery', index)}
-                alt={`${t(project.title)} - ${index}`}
-                className="w-full h-auto rounded-lg shadow-md"
-                onError={() => handleImageError(imageKey)}
-                loading="lazy"
-              />
+              <picture key={index}>
+                {/* Versão WebP em alta qualidade */}
+                <source
+                  srcSet={getGalleryImagePath(index, 'webp')}
+                  type="image/webp"
+                />
+                {/* Versão JPG em alta qualidade */}
+                <source
+                  srcSet={getGalleryImagePath(index, 'jpg')}
+                  type="image/jpeg"
+                />
+                {/* Fallback */}
+                <img
+                  src={getGalleryImagePath(index, 'jpg')}
+                  alt={`${t(project.title)} - ${index}`}
+                  className="w-full h-auto rounded-lg shadow-md"
+                  onError={(e) => {
+                    console.log(
+                      `Erro ao carregar imagem otimizada da galeria ${index}, tentando original`,
+                    )
+                    handleImageError(
+                      imageKey,
+                      e.currentTarget,
+                      getOriginalImagePath('gallery', index),
+                    )
+                  }}
+                  loading="lazy"
+                />
+              </picture>
             )
           })}
         </div>

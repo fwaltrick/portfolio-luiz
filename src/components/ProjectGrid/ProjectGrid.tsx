@@ -1,5 +1,5 @@
 // src/components/ui/ProjectGrid.tsx
-import React from 'react'
+import React, { memo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -9,13 +9,37 @@ interface ProjectGridProps {
   projects: Project[]
 }
 
-const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
+const ProjectGrid: React.FC<ProjectGridProps> = memo(({ projects = [] }) => {
   console.log('ProjectGrid received projects:', projects)
-
   const { t } = useTranslation()
+  const [webpSupported, setWebpSupported] = useState(false)
 
-  // Função para gerar o caminho correto da imagem usando a nova estrutura
-  const getProjectImagePath = (project: Project) => {
+  // Verificar suporte a WebP quando o componente montar
+  useEffect(() => {
+    const checkWebPSupport = () => {
+      const elem = document.createElement('canvas')
+      if (elem.getContext && elem.getContext('2d')) {
+        return elem.toDataURL('image/webp').indexOf('data:image/webp') === 0
+      }
+      return false
+    }
+
+    setWebpSupported(checkWebPSupport())
+  }, [])
+
+  // Função para obter o caminho da imagem otimizada para o grid
+  const getOptimizedImagePath = (project: Project): string => {
+    if (!project || !project.slug) return ''
+
+    // Caminho para a imagem otimizada
+    const format = webpSupported ? 'webp' : 'jpg'
+
+    // Para o grid, usamos a versão medium para balancear qualidade e performance
+    return `/images/optimized/${project.slug}/cover-medium.${format}`
+  }
+
+  // Função para obter o caminho da imagem original (fallback)
+  const getOriginalImagePath = (project: Project): string => {
     // Verifica se o projeto já tem um URL completo
     if (
       project.imageUrl &&
@@ -36,7 +60,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
     <div className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 w-full pt-6 pb-12 md:pt-6 md:pb-16 lg:pt-6 lg:pb-20">
         <AnimatePresence>
-          {projects.map((project) => (
+          {projects.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -48,7 +72,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
               <Link
                 to={`/project/${project.slug}`}
                 className="block rounded-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                aria-label={`${project.title} - ${project.category}`} // Use valores já traduzidos
+                aria-label={`${project.title} - ${project.category}`}
               >
                 <motion.div
                   className="relative w-full aspect-[4/3] overflow-hidden"
@@ -56,23 +80,44 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
                   whileFocus="hover"
                   initial="initial"
                 >
-                  {/* Project image with subtle zoom effect - CAMINHO ATUALIZADO */}
-                  <motion.img
-                    src={getProjectImagePath(project)}
-                    alt={project.title} // Use valor já traduzido
-                    className="absolute inset-0 w-full h-full object-cover"
-                    variants={{
-                      initial: { scale: 1 },
-                      hover: { scale: 1.03 },
-                    }}
-                    transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                    onError={(e) => {
-                      console.error(
-                        `Failed to load image: ${getProjectImagePath(project)}`,
-                      )
-                      e.currentTarget.parentElement?.classList.add('bg-black')
-                    }}
-                  />
+                  {/* Usando picture para melhor performance */}
+                  <picture>
+                    {/* WebP para navegadores modernos */}
+                    {webpSupported && (
+                      <source
+                        srcSet={`/images/optimized/${project.slug}/cover-medium.webp`}
+                        type="image/webp"
+                      />
+                    )}
+
+                    {/* JPG para navegadores sem suporte a WebP */}
+                    <source
+                      srcSet={`/images/optimized/${project.slug}/cover-medium.jpg`}
+                      type="image/jpeg"
+                    />
+
+                    {/* Imagem com efeito de zoom */}
+                    <motion.img
+                      src={getOptimizedImagePath(project)}
+                      alt={project.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      loading="lazy" // Adiciona carregamento lazy para imagens abaixo da dobra
+                      fetchPriority={index < 6 ? 'high' : 'auto'} // Prioridade alta para as primeiras 6 imagens
+                      decoding="async" // Decodificação assíncrona
+                      variants={{
+                        initial: { scale: 1 },
+                        hover: { scale: 1.03 },
+                      }}
+                      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                      onError={(e) => {
+                        console.error(
+                          `Failed to load optimized image for ${project.slug}`,
+                        )
+                        // Fallback para a imagem original
+                        e.currentTarget.src = getOriginalImagePath(project)
+                      }}
+                    />
+                  </picture>
 
                   {/* Dark overlay with optimized animation timing */}
                   <motion.div
@@ -113,7 +158,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
                           },
                         }}
                       >
-                        {project.title} {/* Use valor já traduzido */}
+                        {project.title}
                       </motion.h3>
                     </div>
 
@@ -141,7 +186,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
                           },
                         }}
                       >
-                        {project.category} {/* Use valor já traduzido */}
+                        {project.category}
                       </motion.span>
                     </div>
                   </div>
@@ -175,6 +220,9 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects = [] }) => {
       </div>
     </div>
   )
-}
+})
+
+// Adicionar displayName para melhorar depuração
+ProjectGrid.displayName = 'ProjectGrid'
 
 export default ProjectGrid

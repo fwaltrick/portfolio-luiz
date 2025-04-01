@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "optimize-images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
@@ -17,15 +18,18 @@
     "@radix-ui/react-hover-card": "^1.1.6",
     "@radix-ui/react-switch": "^1.1.3",
     "@tailwindcss/vite": "^4.0.14",
+    "@tinacms/cli": "^1.9.3",
     "framer-motion": "^12.5.0",
     "i18next": "^24.2.3",
     "i18next-browser-languagedetector": "^8.0.4",
     "i18next-http-backend": "^3.0.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-i18next": "^15.4.1",
     "react-router-dom": "^7.3.0",
-    "tailwindcss": "^4.0.14"
+    "sharp": "^0.33.5",
+    "tailwindcss": "^4.0.14",
+    "tinacms": "^2.7.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

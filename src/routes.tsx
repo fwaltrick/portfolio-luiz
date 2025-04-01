@@ -3,7 +3,6 @@ import App from './App'
 import Home from './pages/Home'
 import ProjectDetailPage from './pages/ProjectDetail'
 import AboutPage from './pages/About'
-import { projects } from './data/projectsData'
 
 // Definindo as rotas
 const routes: RouteObject[] = [

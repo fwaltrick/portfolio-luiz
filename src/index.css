@@ -40,7 +40,7 @@ body.project-detail-page {
 }
 
 @utility container-custom {
-  @apply max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8;
+  @apply max-w-[1440px] mx-auto w-full px-8 md:px-16 lg:px-16;
 }
 
 @utility btn {

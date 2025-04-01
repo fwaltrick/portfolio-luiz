@@ -3,21 +3,26 @@ import React, { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
-// Adicione tipagem TypeScript
+// Tipagem TypeScript
 interface CategoryFilterProps {
   categories: string[]
   selectedCategories: string[]
   onCategoryChange: (categories: string[]) => void
 }
 
-const CategoryFilter: React.FC<CategoryFilterProps> = memo(
-  ({ categories, selectedCategories, onCategoryChange }) => {
+const CategoryFilter = memo(
+  ({
+    categories,
+    selectedCategories,
+    onCategoryChange,
+  }: CategoryFilterProps) => {
     const { t } = useTranslation()
     const [isFilterOpen, setIsFilterOpen] = useState(false)
     const filterContentRef = useRef<HTMLDivElement>(null)
     const [filterHeight, setFilterHeight] = useState(0)
 
     console.log('CategoryFilter received:', { categories, selectedCategories })
+
     // Measure the height of filter content when it changes
     useEffect(() => {
       if (isFilterOpen && filterContentRef.current) {
@@ -173,4 +178,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = memo(
   },
 )
 
-export default React.memo(CategoryFilter)
+// Adicionar displayName para melhorar depuração
+CategoryFilter.displayName = 'CategoryFilter'
+
+export default CategoryFilter

@@ -1,16 +1,12 @@
 // src/pages/Home/index.tsx
 import React, { useState, useMemo, useCallback } from 'react'
-import CategoryFilter from '../../components/ui/CategoryFilter'
-import ProjectGrid from '../../components/ui/ProjectGrid'
-import { Project } from '../../types'
+import CategoryFilter from '../../components/CategoryFilter'
+import ProjectGrid from '../../components/ProjectGrid'
+import { useProjects } from '../../hooks'
 
-interface HomeProps {
-  projects: Project[]
-  loading: boolean
-}
-
-const HomePage: React.FC<HomeProps> = ({ projects, loading }) => {
+const HomePage: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const { projects, loading } = useProjects()
 
   // Handler para mudança de categoria
   const handleCategoryChange = useCallback((newCategories: string[]) => {
@@ -43,12 +39,18 @@ const HomePage: React.FC<HomeProps> = ({ projects, loading }) => {
 
   return (
     <div className="container-custom pt-4">
-      <CategoryFilter
-        categories={categories}
-        selectedCategories={selectedCategories}
-        onCategoryChange={handleCategoryChange}
-      />
-      <ProjectGrid projects={filteredProjects} />
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          <CategoryFilter
+            categories={categories}
+            selectedCategories={selectedCategories}
+            onCategoryChange={handleCategoryChange}
+          />
+          <ProjectGrid projects={filteredProjects} />
+        </>
+      )}
     </div>
   )
 }

@@ -1,3 +1,4 @@
+// src/router.tsx (ou onde você define suas rotas)
 import { createBrowserRouter, RouteObject } from 'react-router-dom'
 import App from './App'
 import Home from './pages/Home'

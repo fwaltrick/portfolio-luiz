@@ -1,56 +1,19 @@
 // src/pages/Home/index.tsx
-import React, { useState, useMemo, useCallback } from 'react'
-import CategoryFilter from '../../components/CategoryFilter'
+import React from 'react'
 import ProjectGrid from '../../components/ProjectGrid'
-import { useProjects } from '../../hooks'
+import useProjects from '../../hooks/useProjects'
 
 const HomePage: React.FC = () => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const { projects, loading } = useProjects()
 
-  // Handler para mudança de categoria
-  const handleCategoryChange = useCallback((newCategories: string[]) => {
-    setSelectedCategories(newCategories)
-  }, [])
-
-  // Extract unique categories for the filter
-  const categories = useMemo(() => {
-    if (!projects?.length) return []
-    const uniqueCategories = [
-      ...new Set(projects.map((project) => project.category)),
-    ]
-    return uniqueCategories.sort()
-  }, [projects])
-
-  // Filter projects based on selected categories
-  const filteredProjects = useMemo(() => {
-    if (selectedCategories.length === 0) {
-      return projects
-    }
-    return projects.filter((project) =>
-      selectedCategories.includes(project.category),
-    )
-  }, [projects, selectedCategories])
-
-  // Logs para debug
+  // Logs for debugging
   console.log('Home render - loading:', loading)
   console.log('Home render - projects length:', projects?.length || 0)
-  console.log('Home render - categories length:', categories?.length || 0)
 
+  // Pass the projects and loading state directly to ProjectGrid
   return (
     <div className="container-custom pt-4">
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          <CategoryFilter
-            categories={categories}
-            selectedCategories={selectedCategories}
-            onCategoryChange={handleCategoryChange}
-          />
-          <ProjectGrid projects={filteredProjects} />
-        </>
-      )}
+      <ProjectGrid projects={projects} loading={loading} />
     </div>
   )
 }

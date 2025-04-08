@@ -1,5 +1,20 @@
-/* index.css - Para Tailwind CSS v4 */
+/* theme.css */
 @import 'tailwindcss';
+
+@theme {
+  /* Paleta de cores Jumbo */
+  --color-jumbo-50: #fafafa;
+  --color-jumbo-100: #e6e6e7;
+  --color-jumbo-200: #cfcfd2;
+  --color-jumbo-300: #adadb3;
+  --color-jumbo-400: #84848c;
+  --color-jumbo-500: #71717a;
+  --color-jumbo-600: #5a5a60;
+  --color-jumbo-700: #4d4c52;
+  --color-jumbo-800: #434347;
+  --color-jumbo-900: #3c3b3e;
+  --color-jumbo-950: #030712;
+}
 
 /* Previne o "bounce" de scroll */
 html {
@@ -26,7 +41,7 @@ body.project-detail-page {
 /* Suas camadas personalizadas */
 @utility base {
   body {
-    @apply bg-white text-gray-900 font-sans;
+    @apply bg-jumbo-50 text-jumbo-950 font-sans;
   }
 
   h1,

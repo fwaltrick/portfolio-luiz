@@ -1,13 +1,13 @@
-// src/components/ui/CategoryFilter.tsx
+/// src/components/CategoryFilter/CategoryFilter.tsx
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
-// Tipagem TypeScript
 interface CategoryFilterProps {
   categories: string[]
   selectedCategories: string[]
   onCategoryChange: (categories: string[]) => void
+  loading?: boolean
 }
 
 const CategoryFilter = memo(
@@ -15,13 +15,12 @@ const CategoryFilter = memo(
     categories,
     selectedCategories,
     onCategoryChange,
+    loading = false,
   }: CategoryFilterProps) => {
     const { t } = useTranslation()
     const [isFilterOpen, setIsFilterOpen] = useState(false)
     const filterContentRef = useRef<HTMLDivElement>(null)
     const [filterHeight, setFilterHeight] = useState(0)
-
-    console.log('CategoryFilter received:', { categories, selectedCategories })
 
     // Measure the height of filter content when it changes
     useEffect(() => {
@@ -55,8 +54,35 @@ const CategoryFilter = memo(
       [selectedCategories, onCategoryChange],
     )
 
-    // If there are no categories, don't render anything
+    // If there are no categories or still loading, show a disabled state
     if (categories.length === 0) {
+      if (loading) {
+        return (
+          <div className="w-full mb-6">
+            <div className="flex justify-end">
+              <div
+                className="inline-flex items-center px-3 border border-gray-200 text-sm text-gray-400 rounded-lg bg-gray-50 cursor-not-allowed"
+                style={{ height: '40px' }}
+              >
+                <span>{t('filter.filterBy', 'Filter by')}</span>
+                <svg
+                  className="ml-1.5 h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        )
+      }
       return null
     }
 

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+// src/components/Header.tsx
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../LanguageSwitcher'
-import './Header.css'
 
 const Header = () => {
   const { t } = useTranslation()
@@ -12,30 +12,6 @@ const Header = () => {
   // Verifica se estamos em uma página de detalhes de projeto
   const isProjectDetailPage = location.pathname.includes('/project/')
 
-  // Estado para controlar a transparência do header ao rolar a página
-  const [scrolled, setScrolled] = useState(false)
-
-  // Efeito para controlar a transparência do header ao rolar
-  useEffect(() => {
-    if (!isProjectDetailPage) return
-
-    const handleScroll = () => {
-      // Adiciona classe quando a página é rolada além de 100px
-      if (window.scrollY > 100) {
-        setScrolled(true)
-      } else {
-        setScrolled(false)
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll)
-
-    // Limpeza ao desmontar
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [isProjectDetailPage])
-
   // Função para verificar se um link está ativo
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true
@@ -43,11 +19,11 @@ const Header = () => {
     return false
   }
 
-  // Classes condicionais para o header
-  const headerClasses = `w-full py-4 ${
+  // Classes para o header - POSICIONAMENTO ABSOLUTO em páginas de detalhe
+  const headerClasses = `w-full py-4 z-50 ${
     isProjectDetailPage
-      ? `project-detail-header ${scrolled ? 'scrolled' : ''}`
-      : 'border-b border-gray-200'
+      ? 'absolute top-0 left-0 right-0'
+      : 'relative border-b border-gray-200'
   }`
 
   return (
@@ -57,8 +33,8 @@ const Header = () => {
         <div>
           <Link
             to="/"
-            className={`tracking-(0.015em) text-4xl font-[Staatliches] ${
-              isProjectDetailPage ? 'text-white header-logo' : ''
+            className={`tracking-[0.015em] text-4xl font-[Staatliches] ${
+              isProjectDetailPage ? 'text-white' : ''
             }`}
           >
             LUIZ DOMINGUEZ
@@ -71,7 +47,7 @@ const Header = () => {
             to="/"
             className={`text-md font-sans hover:underline ${
               isActive('/') ? 'font-bold' : ''
-            } ${isProjectDetailPage ? 'text-white header-link' : ''}`}
+            } ${isProjectDetailPage ? 'text-white' : ''}`}
           >
             {t('nav.home')}
           </Link>
@@ -79,14 +55,14 @@ const Header = () => {
             to="/about"
             className={`text-md font-sans hover:underline ${
               isActive('/about') ? 'font-bold' : ''
-            } ${isProjectDetailPage ? 'text-white header-link' : ''}`}
+            } ${isProjectDetailPage ? 'text-white' : ''}`}
           >
             {t('nav.about')}
           </Link>
           <a
             href="mailto:domluiz@gmail.com"
             className={`text-md font-sans hover:underline ${
-              isProjectDetailPage ? 'text-white header-link' : ''
+              isProjectDetailPage ? 'text-white' : ''
             }`}
           >
             {t('nav.contact')}
@@ -94,7 +70,7 @@ const Header = () => {
           <LanguageSwitcher />
         </div>
 
-        {/* Botão do menu mobile - Só aparece em telas pequenas */}
+        {/* Mobile */}
         <div className="md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -136,11 +112,13 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Menu Mobile Expandido - Só aparece quando o menu está aberto e em telas pequenas */}
+      {/* Menu Mobile Expandido */}
       {mobileMenuOpen && (
         <div
           className={`md:hidden mt-4 py-4 border-t ${
-            isProjectDetailPage ? 'bg-black bg-opacity-90 text-white' : ''
+            isProjectDetailPage
+              ? 'bg-black bg-opacity-90 text-white'
+              : 'bg-jumbo-50'
           }`}
         >
           <div className="container-custom">
@@ -170,10 +148,10 @@ const Header = () => {
               >
                 {t('nav.contact')}
               </a>
+              <div className="mt-4 pt-4 border-t">
+                <LanguageSwitcher />
+              </div>
             </nav>
-            <div className="mt-4 pt-4 border-t">
-              <LanguageSwitcher />
-            </div>
           </div>
         </div>
       )}

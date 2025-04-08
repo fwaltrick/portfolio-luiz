@@ -1,61 +1,140 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/contexts/ProjectsProvider.tsx
-import React, { useState, useEffect, ReactNode } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Project } from '../types'
 import { projects as projectsFromFile } from '../data/projectsData'
 import ProjectsContext from './ProjectsContext'
+import { client } from '../../tina/__generated__/client'
 
 interface ProjectsProviderProps {
-  children: ReactNode
-  // Podemos manter opções para testes ou casos especiais
+  children: React.ReactNode
   initialProjects?: Project[]
-  initialLoading?: boolean
+  useTina?: boolean
 }
 
 const ProjectsProvider: React.FC<ProjectsProviderProps> = ({
   children,
   initialProjects,
-  initialLoading = true,
+  useTina = true,
 }) => {
-  const [projects, setProjects] = useState<Project[]>(initialProjects || [])
-  const [loading, setLoading] = useState(initialLoading)
-  const { t, i18n } = useTranslation()
+  const [rawProjects, setRawProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  const { i18n } = useTranslation()
+  const isGerman = i18n.language.startsWith('de')
 
-  // Efeito para carregar e traduzir projetos
+  // Fetch raw projects data only once
   useEffect(() => {
     if (initialProjects) {
-      // Se projetos iniciais foram fornecidos, usamos eles e não fazemos a tradução
-      setProjects(initialProjects)
+      setRawProjects(initialProjects)
       setLoading(false)
       return
     }
 
-    const updateProjects = async () => {
+    const fetchProjects = async () => {
       try {
         setLoading(true)
+        setError(null)
 
-        // Traduza os projetos
-        const translatedProjects = projectsFromFile.map((project) => ({
-          ...project,
-          title: project.titleKey ? t(project.titleKey) : project.title,
-          category: project.categoryKey
-            ? t(project.categoryKey)
-            : project.category,
-        }))
+        if (useTina) {
+          try {
+            const result = await client.queries.projectConnection()
+            const edges = result.data.projectConnection?.edges || []
 
-        setProjects(translatedProjects)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error processing projects:', error)
+            if (edges.length > 0) {
+              setRawProjects(edges.map((edge) => edge?.node))
+              setLoading(false)
+              return
+            }
+          } catch (tinaError) {
+            console.error('Error fetching from TinaCMS:', tinaError)
+          }
+        }
+
+        // Fallback to file data
+        setRawProjects(projectsFromFile)
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)))
+      } finally {
         setLoading(false)
       }
     }
 
-    updateProjects()
-  }, [t, i18n.language, initialProjects])
+    fetchProjects()
+  }, [initialProjects, useTina])
+
+  // Transform and sort raw projects based on current language
+  const projects = useMemo(() => {
+    // First transform the raw projects
+    const transformedProjects = rawProjects.map((project) => {
+      // For TinaCMS projects
+      if (project._sys) {
+        return {
+          id: project._sys.filename,
+          title: isGerman ? project.title_de : project.title_en,
+          slug: project.slug,
+          category: isGerman ? project.category_de : project.category_en,
+          client: project.client,
+          agency: project.agency,
+          year: project.year,
+          creativeDirection: project.creativeDirection,
+          copyright: project.copyright,
+          imageUrl: project.coverImage,
+          order: typeof project.order === 'number' ? project.order : 9999, // Default to high number if order not set
+          // Store original data for potential direct access
+          _raw: project,
+        }
+      }
+
+      // For local file projects
+      return {
+        ...project,
+        title: project.titleKey
+          ? isGerman
+            ? project.title_de
+            : project.title_en
+          : project.title,
+        category: project.categoryKey
+          ? isGerman
+            ? project.category_de
+            : project.category_en
+          : project.category,
+        order: typeof project.order === 'number' ? project.order : 9999, // Ensure local projects have order too
+      }
+    })
+
+    // Then sort the projects by order (ascending)
+    return transformedProjects.sort((a, b) => {
+      // Primary sort by order field
+      if (a.order !== b.order) {
+        return a.order - b.order
+      }
+
+      // Secondary sort by year (most recent first) if orders are equal
+      const yearA = parseInt(a.year || '0', 10)
+      const yearB = parseInt(b.year || '0', 10)
+      if (yearA !== yearB) {
+        return yearB - yearA
+      }
+
+      // Tertiary sort by title alphabetically if years are also equal
+      return (a.title || '').localeCompare(b.title || '')
+    })
+  }, [rawProjects, isGerman])
+
+  // Create a memoized context value
+  const contextValue = useMemo(
+    () => ({
+      projects,
+      loading,
+      error,
+    }),
+    [projects, loading, error],
+  )
 
   return (
-    <ProjectsContext.Provider value={{ projects, loading }}>
+    <ProjectsContext.Provider value={contextValue}>
       {children}
     </ProjectsContext.Provider>
   )

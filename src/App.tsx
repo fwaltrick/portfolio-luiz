@@ -10,7 +10,7 @@ import ProjectsProvider from './contexts/ProjectsProvider'
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
       <ProjectsProvider>
         <Header />
         <main className="flex-grow">

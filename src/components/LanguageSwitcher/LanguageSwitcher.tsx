@@ -39,7 +39,9 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       <button
         onClick={() => toggleLanguage('de')}
         className={`px-2 py-1 text-sm font-sans rounded transition-all cursor-pointer ${
-          isGerman ? 'bg-black text-white font-medium' : inactiveButtonClasses
+          isGerman
+            ? 'bg-jumbo-950 text-white font-medium'
+            : inactiveButtonClasses
         }`}
         aria-label="Auf Deutsch umschalten"
         aria-pressed={isGerman}
@@ -49,7 +51,9 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       <button
         onClick={() => toggleLanguage('en')}
         className={`px-2 py-1 text-sm font-sans rounded transition-all cursor-pointer ${
-          !isGerman ? 'bg-black text-white font-medium' : inactiveButtonClasses
+          !isGerman
+            ? 'bg-jumbo-950 text-white font-medium'
+            : inactiveButtonClasses
         }`}
         aria-label="Switch to English"
         aria-pressed={!isGerman}

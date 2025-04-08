@@ -5,10 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "optimize-images": "node scripts/optimize-images.js"
+    "tina": "tinacms dev -c \"npm run dev\"",
+    "prepare-images": "node scripts/prepare-tina-images.js",
+    "optimize-images": "node scripts/optimize-images.js",
+    "process-all-images": "npm run prepare-images && npm run optimize-images",
+    "build": "npm run process-all-images && tinacms build && tsc -b && vite build"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
@@ -26,6 +29,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^15.4.1",
+    "react-responsive": "^10.0.1",
     "react-router-dom": "^7.3.0",
     "sharp": "^0.33.5",
     "tailwindcss": "^4.0.14",
@@ -33,7 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@types/node": "^22.13.13",
+    "@types/node": "^22.13.17",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",

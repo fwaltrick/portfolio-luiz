@@ -10,6 +10,7 @@ import { TinaMarkdown } from 'tinacms/dist/rich-text'
 import type { TinaMarkdownContent } from 'tinacms/dist/rich-text'
 import ProjectGallery from '../../components/ProjectGallery'
 import RelatedProjects from '../../components/RelatedProjects'
+// import Loader from '../../components/Loader'
 
 // Error Boundary with language support
 class ErrorBoundary extends React.Component<
@@ -103,24 +104,28 @@ interface TranslatedTextProps {
 }
 
 // Loading Spinner Component
-const LoadingSpinner: React.FC = () => (
-  <div className="flex justify-center items-center min-h-[50vh]">
-    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-jumbo-600"></div>
-  </div>
-)
+// const LoadingSpinner: React.FC = () => (
+//   <div className="flex justify-center items-center min-h-[50vh]">
+//     <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-jumbo-600"></div>
+//   </div>
+// )
 
 // Simplified HeroImage that won't re-render on language changes
 const HeroImage = React.memo(
   ({ src, fallbackSrc, alt }: HeroImageProps) => (
     <div className="relative w-full h-[100vh] overflow-hidden bg-black">
-      <img
-        src={src}
-        alt={alt}
-        className="w-full h-full object-cover block will-change-transform transform-gpu backface-hidden"
-        onError={(e) => {
-          e.currentTarget.src = fallbackSrc
-        }}
-      />
+      <picture>
+        {/* Gere o caminho WebP dinamicamente a partir do src */}
+        <source srcSet={src.replace('.jpg', '.webp')} type="image/webp" />
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full object-cover block will-change-transform transform-gpu backface-hidden"
+          onError={(e) => {
+            e.currentTarget.src = fallbackSrc
+          }}
+        />
+      </picture>
       <div className="absolute top-0 left-0 right-0 h-[150px] bg-gradient-to-b from-black/80 to-transparent pointer-events-none z-10"></div>
     </div>
   ),
@@ -165,7 +170,7 @@ const ProjectDetailPage: React.FC = () => {
 
   // State
   const [project, setProject] = useState<Project | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
+  const [, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [, setImageVisible] = useState<boolean>(false)
   const [transitionComplete, setTransitionComplete] = useState<boolean>(false)
@@ -180,13 +185,13 @@ const ProjectDetailPage: React.FC = () => {
 
   // Create stable image URLs that won't change with language
   const heroImageSrc = useMemo(
-    () => (slug ? `/images/optimized/${slug}/cover.jpg` : ''),
+    () => (slug ? `/images/optimized/${slug}/hero.jpg` : ''),
     [slug],
   )
 
   const heroImageFallback = useMemo(
     () =>
-      project?.imageUrl || (slug ? `/images/projects/${slug}/cover.jpg` : ''),
+      project?.imageUrl || (slug ? `/images/projects/${slug}/hero.jpg` : ''),
     [project?.imageUrl, slug],
   )
 
@@ -428,13 +433,13 @@ const ProjectDetailPage: React.FC = () => {
   }
 
   // Render loading state with spinner
-  if (loading) {
-    return (
-      <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12">
-        <LoadingSpinner />
-      </div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     // <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12">
+  //     // <Loader size="large" />
+  //     // </div>
+  //   )
+  // }
 
   // Render error state
   if (error) {
@@ -558,47 +563,47 @@ const ProjectDetailPage: React.FC = () => {
               </div>
 
               {/* Project metadata - only show fields with data */}
-              <div className="mb-8">
+              <div className="mb-8 grid grid-cols-[3rem_1fr] gap-y-4">
                 {project.client && (
-                  <div className="flex mb-4 items-start">
-                    <div className="w-12 font-staatliches uppercase tracking-wider text-jumbo-300">
+                  <>
+                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
                       {labels.for}
                     </div>
                     <div className="font-inter font-light">
                       {project.client}
                     </div>
-                  </div>
+                  </>
                 )}
 
                 {project.agency && (
-                  <div className="flex mb-4 items-start">
-                    <div className="w-12 font-staatliches uppercase tracking-wider text-jumbo-300">
+                  <>
+                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
                       {labels.at}
                     </div>
                     <div className="font-inter font-light">
                       {project.agency}
                     </div>
-                  </div>
+                  </>
                 )}
 
                 {project.creativeDirection && (
-                  <div className="flex mb-4 items-start">
-                    <div className="w-12 font-staatliches uppercase tracking-wider text-jumbo-300">
+                  <>
+                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
                       {labels.with}
                     </div>
-                    <div className="font-inter font-light whitespace-nowrap">
+                    <div className="font-inter font-light">
                       {project.creativeDirection}
                     </div>
-                  </div>
+                  </>
                 )}
 
                 {project.year && (
-                  <div className="flex mb-4 items-start">
-                    <div className="w-12 font-staatliches uppercase tracking-wider text-jumbo-300">
+                  <>
+                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
                       {labels.when}
                     </div>
                     <div className="font-inter font-light">{project.year}</div>
-                  </div>
+                  </>
                 )}
               </div>
 

@@ -117,10 +117,8 @@ const RelatedProjects: React.FC<RelatedProjectsProps> = ({
   const seeAlsoTitle = isGerman ? 'SIEHE AUCH' : 'SEE ALSO'
 
   return (
-    <div className="w-full py-8 pb-4 bg-jumbo-50">
+    <div className="w-full py-14 pb-4 bg-jumbo-50">
       {' '}
-      {/* Reduzido padding inferior */}
-      {/* Container que segue o grid do layout */}
       <div className="container-custom">
         {/* Seção See Also */}
         <div className="mb-8">
@@ -147,27 +145,39 @@ const RelatedProjects: React.FC<RelatedProjectsProps> = ({
                   to={`/project/${project.slug}`}
                   key={project.slug}
                   className="flex-none w-[280px] min-w-[280px] max-w-[280px] 
-                             md:w-auto md:min-w-[280px] md:max-w-[360px] 
-                             md:flex-1 md:basis-[calc(33.333%-1rem)] group 
-                             transition-colors duration-300"
+                 md:w-auto md:min-w-[280px] md:max-w-[360px] 
+                 md:flex-1 md:basis-[calc(33.333%-1rem)] group 
+                 transition-colors duration-300"
                 >
                   <div className="w-full h-[180px] md:h-[200px] overflow-hidden mb-3 rounded-lg">
-                    <img
-                      src={`/images/optimized/${project.slug}/cover.jpg`}
-                      alt=""
-                      className="w-full h-full object-cover transition-transform duration-500 
-                                group-hover:scale-105"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          project.imageUrl ||
-                          `/images/projects/${project.slug}/cover.jpg`
-                      }}
-                    />
+                    <picture>
+                      {/* WebP para navegadores modernos */}
+                      <source
+                        srcSet={`/images/optimized/${project.slug}/hero-md.webp`}
+                        type="image/webp"
+                      />
+                      {/* JPG para navegadores sem suporte a WebP */}
+                      <source
+                        srcSet={`/images/optimized/${project.slug}/hero-md.jpg`}
+                        type="image/jpeg"
+                      />
+                      <img
+                        src={`/images/optimized/${project.slug}/hero-md.jpg`}
+                        alt=""
+                        className="w-full h-full object-cover transition-transform duration-500 
+                      group-hover:scale-105"
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            project.imageUrl ||
+                            `/images/projects/${project.slug}/hero.jpg`
+                        }}
+                      />
+                    </picture>
                   </div>
                   <h3
                     className="text-xl font-staatliches uppercase mt-1 text-jumbo-950 
-                                transition-colors duration-300 group-hover:text-jumbo-600
-                                line-clamp-2 md:line-clamp-none"
+                    transition-colors duration-300 group-hover:text-jumbo-600
+                    line-clamp-2 md:line-clamp-none"
                     title={projectTitle} // Tooltip com o título completo
                   >
                     {projectTitle}

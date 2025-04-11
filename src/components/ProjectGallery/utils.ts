@@ -1,78 +1,121 @@
 // src/components/ProjectGallery/utils.ts
-
 import { GalleryItem } from './types'
 
 /**
  * Gets the optimal image size based on screen width
  */
 export const getOptimalImageSize = (): string => {
-  if (typeof window === 'undefined') return 'large'
+  if (typeof window === 'undefined') return 'md'
 
   const width = window.innerWidth
-  if (width >= 1440) return 'desktop'
-  if (width >= 1024) return 'large'
-  if (width >= 768) return 'medium'
-  return 'thumbnail'
+  if (width >= 1440) return 'lg'
+  return 'md'
+}
+
+let webpSupportCache: boolean | null = null
+
+/**
+ * Detecta suporte a WebP
+ */
+export const supportsWebP = (): boolean => {
+  if (typeof window === 'undefined') return false
+
+  // Se já temos o resultado em cache
+  if (webpSupportCache !== null) {
+    return webpSupportCache
+  }
+
+  // Tenta detectar suporte
+  const elem = document.createElement('canvas')
+  if (elem.getContext && elem.getContext('2d')) {
+    webpSupportCache =
+      elem.toDataURL('image/webp').indexOf('data:image/webp') === 0
+    return webpSupportCache
+  }
+
+  webpSupportCache = false
+  return false
 }
 
 /**
- * Generates the appropriate image path based on the slug, image index, and device
+ * Gera o caminho da imagem otimizada com base no slug, tipo e tamanho
  */
 export const getImagePath = (
   slug: string,
-  index: number,
-  isCoverImage: boolean,
-  size: string = 'large',
-  format: 'jpg' | 'webp' = 'jpg',
+  imageName: string = 'hero',
+  size?: string,
+  format?: 'jpg' | 'webp',
 ): string => {
-  const baseFilename = isCoverImage
-    ? 'cover'
-    : `img-${String(index).padStart(2, '0')}`
+  // Determina o formato com base no suporte do navegador
+  const imageFormat = format || (supportsWebP() ? 'webp' : 'jpg')
 
-  // For original size (no suffix)
-  if (size === 'original') {
-    return `/images/optimized/${slug}/${baseFilename}.${format}`
+  // Tratamento especial para 'hero' - não usar sufixo para a imagem principal
+  if (imageName === 'hero' && !size) {
+    return `/images/optimized/${slug}/hero.${imageFormat}`
   }
 
-  // For responsive sizes
-  return `/images/optimized/${slug}/${baseFilename}-${size}.${format}`
+  // Se tamanho não for especificado, use a versão original otimizada
+  const sizeSuffix = size ? `-${size}` : ''
+
+  return `/images/optimized/${slug}/${imageName}${sizeSuffix}.${imageFormat}`
 }
 
 /**
- * Generates a fallback image path
+ * Gera um caminho de fallback para a imagem original
  */
 export const getFallbackPath = (
   slug: string,
-  index: number,
-  isCoverImage: boolean,
+  imageName: string = 'cover',
 ): string => {
-  if (isCoverImage) {
+  // Se for 'hero', usar 'cover' no caminho original
+  if (imageName === 'hero') {
     return `/images/projects/${slug}/cover.jpg`
   }
 
-  const formattedIndex = String(index).padStart(2, '0')
-  return `/images/projects/${slug}/${formattedIndex}.jpg`
+  // Se for 'gallery-XX', extrair apenas o número
+  if (imageName.startsWith('gallery-')) {
+    // Remover 'gallery-' e zero à esquerda
+    const number = imageName.replace('gallery-', '').replace(/^0+/, '')
+    // Se ficar vazio, usar '1'
+    return `/images/projects/${slug}/${number || '1'}.jpg`
+  }
+
+  // Caso padrão
+  return `/images/projects/${slug}/${imageName}.jpg`
 }
 
 /**
- * Generates a srcSet for responsive images
+ * Gera um srcSet para imagens responsivas
  */
 export const generateSrcSet = (
   slug: string,
-  index: number,
-  isCoverImage: boolean,
+  imageName: string = 'hero',
   format: 'jpg' | 'webp' = 'jpg',
 ): string => {
-  const baseFilename = isCoverImage
-    ? 'cover'
-    : `img-${String(index).padStart(2, '0')}`
+  // Tratamento especial para 'hero'
+  if (imageName === 'hero') {
+    return `
+      ${getImagePath(slug, imageName, undefined, format)} 1800w,
+      ${getImagePath(slug, imageName, 'md', format)} 800w
+    `
+  }
 
+  // Para outras imagens, usar apenas md e lg conforme script de otimização
   return `
-    /images/optimized/${slug}/${baseFilename}-thumbnail.${format} 400w,
-    /images/optimized/${slug}/${baseFilename}-medium.${format} 800w,
-    /images/optimized/${slug}/${baseFilename}-large.${format} 1200w,
-    /images/optimized/${slug}/${baseFilename}-desktop.${format} 1800w
+    ${getImagePath(slug, imageName, 'md', format)} 800w,
+    ${getImagePath(slug, imageName, 'lg', format)} 1400w
   `
+}
+
+/**
+ * Mapeia o índice da imagem para o nome do arquivo
+ */
+export const getImageNameFromIndex = (
+  index: number,
+  isCoverImage: boolean = false,
+): string => {
+  if (isCoverImage) return 'hero'
+  return `gallery-${String(index).padStart(2, '0')}`
 }
 
 /**
@@ -108,4 +151,30 @@ export const assignPositions = (items: GalleryItem[]): GalleryItem[] => {
     }
     return item
   })
+}
+
+/**
+ * Função auxiliar para debug - registra tentativas de carregamento de imagem
+ */
+export const logImageLoadAttempt = (
+  slug: string,
+  imageName: string,
+  size?: string,
+  format?: string,
+): void => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`Tentando carregar imagem:`, {
+      optimizedPath: getImagePath(
+        slug,
+        imageName,
+        size,
+        format as 'jpg' | 'webp',
+      ),
+      fallbackPath: getFallbackPath(slug, imageName),
+      slug,
+      imageName,
+      size,
+      format,
+    })
+  }
 }

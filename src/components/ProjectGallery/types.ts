@@ -3,8 +3,9 @@ export interface GalleryItem {
   image: string
   orientation?: 'landscape' | 'portrait' | 'square'
   position?: number
-  caption_en?: string
+  originalIndex?: number // Adicionado para rastrear o índice original
   caption_de?: string
+  caption_en?: string
   featured?: boolean
   mobileOnly?: boolean
   desktopOnly?: boolean

@@ -3,7 +3,7 @@ import React from 'react'
 const AboutPage = () => {
   return (
     <div className="container-custom py-8">
-      <h1 className="text-3xl font-serif font-bold mb-6">Über Luiz</h1>
+      <h1 className="text-3xl font-staatliches font-bold mb-6">Über Luiz</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">

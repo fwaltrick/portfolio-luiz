@@ -6,6 +6,9 @@
 # Testing
 /coverage
 
+# Testing
+public/images/optimized
+
 # Production build
 /build
 /dist

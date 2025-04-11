@@ -12,7 +12,7 @@ const projectsDir = path.join(projectRoot, 'public', 'images', 'projects')
 
 // Mapeamento de nomes antigos para novos
 const fileNameMap = {
-  'thumbnail.jpg': 'cover.jpg', // O atual thumbnail na verdade é a capa
+  'thumbnail.jpg': 'hero.jpg', // O atual thumbnail na verdade é a capa
   'img01.jpg': 'featured.jpg', // A imagem destacada
   '01.jpg': '01.jpg', // Manter galeria como está
   '02.jpg': '02.jpg',

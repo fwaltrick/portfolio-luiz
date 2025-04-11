@@ -27,6 +27,7 @@ body {
   overflow: auto;
   -webkit-overflow-scrolling: touch; /* Para suporte melhor em iOS */
   overscroll-behavior: none; /* Previne o bounce em navegadores modernos */
+  background-color: var(--color-jumbo-50);
 }
 
 /* Especificamente para páginas de detalhes de projeto */
@@ -104,4 +105,81 @@ body.project-detail-page {
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+}
+
+@layer utilities {
+  .animate-spin {
+    animation: spin 1.2s linear infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-gradient {
+    background-size: 300% 100%;
+    animation: gradient 3s ease infinite;
+  }
+
+  .animate-reveal-text {
+    animation: reveal 2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+  }
+
+  .animate-line-flow {
+    animation: lineFlow 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes gradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes reveal {
+  0% {
+    left: 0;
+    width: 0%;
+  }
+  50% {
+    left: 0;
+    width: 100%;
+  }
+  100% {
+    left: 100%;
+    width: 0%;
+  }
+}
+
+@keyframes lineFlow {
+  0%,
+  100% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(1);
+  }
 }

@@ -1,10 +1,12 @@
-import React, { useState, useCallback, memo } from 'react'
+import React, { useState, useCallback, memo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Project } from '../../types'
 import CategoryFilter from '../CategoryFilter'
 import { useCategories } from '../../hooks/useCategories'
+// Você pode importar a função supportsWebP dos utilitários se preferir
+// import { supportsWebP } from '../ProjectGallery/utils'
 
 interface ProjectGridProps {
   projects: Project[]
@@ -36,7 +38,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = memo(
     }, [projects, selectedCategories])
 
     // Check WebP support on component mount
-    React.useEffect(() => {
+    useEffect(() => {
       const checkWebPSupport = () => {
         const elem = document.createElement('canvas')
         if (elem.getContext && elem.getContext('2d')) {
@@ -53,7 +55,8 @@ const ProjectGrid: React.FC<ProjectGridProps> = memo(
       (project: Project): string => {
         if (!project || !project.slug) return ''
         const format = webpSupported ? 'webp' : 'jpg'
-        return `/images/optimized/${project.slug}/cover-medium.${format}`
+        // Atualizado para nova nomenclatura
+        return `/images/optimized/${project.slug}/hero-md.${format}`
       },
       [webpSupported],
     )
@@ -64,12 +67,10 @@ const ProjectGrid: React.FC<ProjectGridProps> = memo(
         (project.imageUrl.startsWith('http') ||
           project.imageUrl.startsWith('/'))
       ) {
-        if (project.imageUrl.includes('-thumbnail.jpg')) {
-          return `/images/projects/${project.slug}/thumbnail.jpg`
-        }
         return project.imageUrl
       }
-      return `/images/projects/${project.slug}/thumbnail.jpg`
+      // Fallback para o arquivo original
+      return `/images/projects/${project.slug}/hero.jpg`
     }, [])
 
     if (loading) {
@@ -125,14 +126,14 @@ const ProjectGrid: React.FC<ProjectGridProps> = memo(
                       {/* WebP for modern browsers */}
                       {webpSupported && (
                         <source
-                          srcSet={`/images/optimized/${project.slug}/cover-medium.webp`}
+                          srcSet={`/images/optimized/${project.slug}/hero-md.webp`}
                           type="image/webp"
                         />
                       )}
 
                       {/* JPG for browsers without WebP support */}
                       <source
-                        srcSet={`/images/optimized/${project.slug}/cover-medium.jpg`}
+                        srcSet={`/images/optimized/${project.slug}/hero-md.jpg`}
                         type="image/jpeg"
                       />
 

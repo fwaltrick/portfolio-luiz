@@ -38,10 +38,10 @@ async function prepareProjectImages(projectFile) {
     const sourcePath = path.join(projectRoot, 'public', imagePath)
 
     if (fs.existsSync(sourcePath)) {
-      const targetPath = path.join(projectDir, 'cover.jpg')
+      const targetPath = path.join(projectDir, 'hero.jpg')
       fs.copyFileSync(sourcePath, targetPath)
       console.log(
-        `  ✓ Copiada imagem de capa: ${path.basename(sourcePath)} -> cover.jpg`,
+        `  ✓ Copiada imagem de capa: ${path.basename(sourcePath)} -> hero.jpg`,
       )
     } else {
       console.log(`  ⚠️ Imagem de capa não encontrada: ${sourcePath}`)

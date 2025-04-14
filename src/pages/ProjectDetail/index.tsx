@@ -3,16 +3,16 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { Project } from '../../types'
-import useProjects from '../../hooks/useProjects'
-import { client } from '../../../tina/__generated__/client'
+import { Project } from '../../types' // Ajuste o caminho se necessário
+import useProjects from '../../hooks/useProjects' // Ajuste o caminho se necessário
+import { client } from '../../../tina/__generated__/client' // Ajuste o caminho se necessário
 import { TinaMarkdown } from 'tinacms/dist/rich-text'
 import type { TinaMarkdownContent } from 'tinacms/dist/rich-text'
-import ProjectGallery from '../../components/ProjectGallery'
-import RelatedProjects from '../../components/RelatedProjects'
-// import Loader from '../../components/Loader'
+import ProjectGallery from '../../components/ProjectGallery' // Ajuste o caminho se necessário
+import RelatedProjects from '../../components/RelatedProjects' // Ajuste o caminho se necessário
+import Loader from '../../components/Loader' // Ajuste o caminho se necessário
 
-// Error Boundary with language support
+// --- Error Boundary (sem alterações) ---
 class ErrorBoundary extends React.Component<
   {
     children: React.ReactNode
@@ -46,7 +46,7 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// Type definitions for TinaCMS data
+// --- Interfaces (sem alterações) ---
 interface GalleryItem {
   desktopOnly: boolean
   mobileOnly: boolean
@@ -86,7 +86,6 @@ interface TinaProject {
   gallery?: GalleryItem[]
 }
 
-// Define props interfaces for components
 interface HeroImageProps {
   src: string
   fallbackSrc: string
@@ -103,19 +102,11 @@ interface TranslatedTextProps {
   isChanging: boolean
 }
 
-// Loading Spinner Component
-// const LoadingSpinner: React.FC = () => (
-//   <div className="flex justify-center items-center min-h-[50vh]">
-//     <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-jumbo-600"></div>
-//   </div>
-// )
-
-// Simplified HeroImage that won't re-render on language changes
+// --- Componentes Memoizados (sem alterações) ---
 const HeroImage = React.memo(
   ({ src, fallbackSrc, alt }: HeroImageProps) => (
     <div className="relative w-full h-[100vh] overflow-hidden bg-black">
       <picture>
-        {/* Gere o caminho WebP dinamicamente a partir do src */}
         <source srcSet={src.replace('.jpg', '.webp')} type="image/webp" />
         <img
           src={src}
@@ -135,14 +126,12 @@ const HeroImage = React.memo(
     prev.alt === next.alt,
 )
 
-// Category Chip component
 const CategoryChip = React.memo(({ category }: CategoryChipProps) => (
   <div className="inline-block px-2.5 py-1 rounded bg-jumbo-800 text-white/90 text-xs uppercase tracking-wider font-['Inter'] mb-4">
     {category}
   </div>
 ))
 
-// Memoized TranslatedText component for content that changes with language
 const TranslatedText = React.memo(
   ({ german, english, isChanging }: TranslatedTextProps) => {
     const { i18n } = useTranslation()
@@ -160,17 +149,18 @@ const TranslatedText = React.memo(
   },
 )
 
+// --- Componente Principal ProjectDetailPage ---
 const ProjectDetailPage: React.FC = () => {
   // Hooks
   const { projects } = useProjects()
   const { slug } = useParams<{ slug: string }>()
-  const { i18n } = useTranslation() // Removed unused 't'
+  const { i18n } = useTranslation()
   const navigate = useNavigate()
   const isGerman = i18n.language.startsWith('de')
 
   // State
   const [project, setProject] = useState<Project | null>(null)
-  const [, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [, setImageVisible] = useState<boolean>(false)
   const [transitionComplete, setTransitionComplete] = useState<boolean>(false)
@@ -183,26 +173,23 @@ const ProjectDetailPage: React.FC = () => {
   const scrollPositionRef = useRef<number>(0)
   const prevLanguageRef = useRef<string>(i18n.language)
 
-  // Create stable image URLs that won't change with language
+  // URLs de Imagem Memoizadas (sem alterações)
   const heroImageSrc = useMemo(
     () => (slug ? `/images/optimized/${slug}/hero.jpg` : ''),
     [slug],
   )
-
   const heroImageFallback = useMemo(
     () =>
       project?.imageUrl || (slug ? `/images/projects/${slug}/hero.jpg` : ''),
     [project?.imageUrl, slug],
   )
 
-  // Body styling effect
+  // Efeitos (Body Styling e IntersectionObserver sem alterações)
   useEffect(() => {
     document.body.classList.add('overflow-x-hidden')
     document.body.style.margin = '0'
     document.body.style.padding = '0'
-
     const timer = setTimeout(() => setTransitionComplete(true), 300)
-
     return () => {
       document.body.classList.remove('overflow-x-hidden')
       document.body.style.margin = ''
@@ -211,10 +198,8 @@ const ProjectDetailPage: React.FC = () => {
     }
   }, [])
 
-  // Image intersection observer
   useEffect(() => {
     if (!imageRef.current) return
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -224,21 +209,18 @@ const ProjectDetailPage: React.FC = () => {
       },
       { threshold: 0.1, rootMargin: '100px 0px' },
     )
-
     observer.observe(imageRef.current)
     return () => observer.disconnect()
   }, [])
 
-  // Fetch project data from TinaCMS
+  // Fetch TinaCMS (sem alterações)
   const fetchTinaProject =
     useCallback(async (): Promise<TinaProject | null> => {
       if (!slug) return null
-
       try {
         const result = await client.queries.project({
           relativePath: `${slug}.mdx`,
         })
-
         if (result.data.project) {
           return result.data.project as unknown as TinaProject
         }
@@ -249,8 +231,13 @@ const ProjectDetailPage: React.FC = () => {
       }
     }, [slug])
 
-  // Load project data
+  // ***** EFEITO DE CARREGAMENTO DE DADOS MODIFICADO *****
   useEffect(() => {
+    // Reseta o estado de firstMount para animação do título em CADA navegação
+    // (Se você quiser a animação só na primeira visita ao site, mova este ref para um contexto)
+    firstMountRef.current = true
+    console.log('[ProjectDetail] Load Effect Triggered. Slug:', slug)
+
     const loadProject = async () => {
       if (!slug) {
         setLoading(false)
@@ -259,22 +246,23 @@ const ProjectDetailPage: React.FC = () => {
 
       setLoading(true)
       setError(null)
+      setProject(null) // Limpa o projeto anterior para evitar flash de conteúdo antigo
 
       try {
         const tinaData = await fetchTinaProject()
+        let finalProjectData: Project | null = null
 
         if (tinaData) {
           tinaProjectRef.current = tinaData
-
-          // Create project object with both language versions
+          // Cria o objeto formatado (seu código original aqui)
           const formattedProject = {
             id: tinaData._sys.filename,
             slug: tinaData.slug,
-            title: tinaData.title_en || tinaData.title_de,
+            title: tinaData.title_en || tinaData.title_de, // Use um fallback
             title_de: tinaData.title_de,
             title_en: tinaData.title_en,
             title_bra: tinaData.title_bra,
-            category: tinaData.category_en || tinaData.category_de,
+            category: tinaData.category_en || tinaData.category_de, // Use um fallback
             category_de: tinaData.category_de,
             category_en: tinaData.category_en,
             client: tinaData.client,
@@ -282,7 +270,7 @@ const ProjectDetailPage: React.FC = () => {
             year: tinaData.year,
             creativeDirection: tinaData.creativeDirection,
             copyright: tinaData.copyright,
-            description: tinaData.description_en || tinaData.description_de,
+            description: tinaData.description_en || tinaData.description_de, // Use um fallback
             description_de: tinaData.description_de,
             description_en: tinaData.description_en,
             coverImageConfig: tinaData.coverImageConfig
@@ -298,11 +286,11 @@ const ProjectDetailPage: React.FC = () => {
               : undefined,
             coverImage: tinaData.coverImage || tinaData.coverImageConfig?.image,
             gallery: tinaData.gallery
-              ?.filter((item) => item.image) // Ensure image exists
+              ?.filter((item) => item.image)
               .map((item, index) => ({
                 image: item.image,
                 orientation: item.orientation || 'landscape',
-                position: item.position || index + 1, // Use index+1 as fallback position
+                position: item.position || index + 1,
                 caption_de: item.caption_de,
                 caption_en: item.caption_en,
                 featured: item.featured || false,
@@ -310,63 +298,80 @@ const ProjectDetailPage: React.FC = () => {
                 desktopOnly: item.desktopOnly || false,
               })),
           }
-
-          setProject(formattedProject as unknown as Project)
+          finalProjectData = formattedProject as unknown as Project
         } else {
+          // Fallback para o contexto se Tina não retornar dados
           const contextProject = projects?.find((p) => p.slug === slug)
           if (contextProject) {
-            setProject(contextProject)
+            finalProjectData = contextProject
           } else {
-            setProject(null)
             setError(`Project not found: ${slug}`)
           }
+        }
+
+        // Define o estado SOMENTE se um projeto foi encontrado
+        if (finalProjectData) {
+          setProject(finalProjectData)
+
+          // ***** LÓGICA DE SCROLL ADICIONADA AQUI *****
+          requestAnimationFrame(() => {
+            window.scrollTo(0, 0)
+            console.log('[ProjectDetail] Scrolled to top after project load.')
+          })
+          // ******************************************
+        } else {
+          setProject(null) // Garante limpeza se não achar
         }
       } catch (err) {
         console.error('Error loading project:', err)
         setError(err instanceof Error ? err.message : String(err))
+        setProject(null) // Limpa em caso de erro
       } finally {
         setLoading(false)
       }
     }
 
     loadProject()
-  }, [slug, fetchTinaProject, projects, isGerman])
 
-  // Handle language changes and preserve scroll position
+    // Mantenha as dependências que podem causar a recarga dos dados do projeto
+  }, [slug, fetchTinaProject, projects]) // Removi isGerman daqui, a menos que fetchTinaProject dependa dela
+
+  // Efeito de Mudança de Idioma (sem alterações, mas revisado)
   useEffect(() => {
-    // Skip the first render
+    // Não roda na primeira montagem do componente, só em mudanças de idioma subsequentes
     if (prevLanguageRef.current === i18n.language) {
       return
     }
 
-    // Start language change transition
     setIsChangingLanguage(true)
-
-    // Save current scroll position
     scrollPositionRef.current = window.scrollY
-
-    // Update previous language reference
     prevLanguageRef.current = i18n.language
 
-    // After a short delay, end the transition and restore scroll position
-    setTimeout(() => {
-      // Restore scroll position first
+    // Atraso para permitir a renderização do novo idioma antes de restaurar o scroll
+    const restoreScrollTimer = setTimeout(() => {
       window.scrollTo(0, scrollPositionRef.current)
-
-      // Then end transition
-      setTimeout(() => {
+      // Atraso adicional para remover o estado de 'mudando'
+      const transitionEndTimer = setTimeout(() => {
         setIsChangingLanguage(false)
-      }, 50)
-    }, 200)
-  }, [i18n.language])
+      }, 50) // Pequeno atraso para garantir que o scroll terminou
 
-  // Get description based on language
+      // Limpeza do timer interno
+      return () => clearTimeout(transitionEndTimer)
+    }, 150) // Aumentei um pouco o delay para garantir renderização do novo idioma
+
+    // Limpeza do timer principal
+    return () => clearTimeout(restoreScrollTimer)
+  }, [i18n.language]) // Dependência correta é apenas o idioma
+
+  // ---- Lógica de Renderização (sem alterações significativas) ----
+
+  // Descrição Atual Memoizada
   const currentDescription = useMemo(() => {
     if (!project) return null
     return isGerman ? project.description_de : project.description_en
   }, [project, isGerman])
 
-  // Define markdown components with proper typing
+  // Componentes Markdown (sem alterações)
   const markdownComponents = {
     h1: (props: { children: React.ReactNode }) => (
       <h1 className="text-2xl font-staatliches mb-4 text-jumbo-900">
@@ -432,17 +437,18 @@ const ProjectDetailPage: React.FC = () => {
     ),
   }
 
-  // Render loading state with spinner
-  // if (loading) {
-  //   return (
-  //     // <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12">
-  //     // <Loader size="large" />
-  //     // </div>
-  //   )
-  // }
+  // Render Loading
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader size="large" />
+      </div>
+    )
+  }
 
-  // Render error state
+  // Render Error
   if (error) {
+    // (Código de erro sem alterações)
     return (
       <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12">
         <h2 className="text-xl font-bold text-red-500 mb-4">
@@ -459,8 +465,9 @@ const ProjectDetailPage: React.FC = () => {
     )
   }
 
-  // Render not found state
+  // Render Not Found
   if (!project) {
+    // (Código Not Found sem alterações)
     return (
       <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12 text-jumbo-800">
         {isGerman ? 'Projekt nicht gefunden' : 'Project not found'}
@@ -468,20 +475,16 @@ const ProjectDetailPage: React.FC = () => {
     )
   }
 
-  // Prepare labels
+  // Prepare labels (sem alterações)
   const labels = {
     for: isGerman ? 'FÜR' : 'FOR',
     at: isGerman ? 'BEI' : 'AT',
     with: isGerman ? 'MIT' : 'WITH',
     when: isGerman ? 'WANN' : 'WHEN',
   }
-
-  // Alt text for hero image
   const heroImageAlt = isGerman
     ? project.title_de || project.title
     : project.title_en || project.title
-
-  // Error messages for ErrorBoundary
   const errorMessages = {
     title: isGerman
       ? 'Fehler beim Rendern des Inhalts'
@@ -492,16 +495,18 @@ const ProjectDetailPage: React.FC = () => {
     reloadButton: isGerman ? 'Seite neu laden' : 'Reload Page',
   }
 
+  // ---- JSX de Retorno Principal ----
   return (
+    // Container principal (sem alterações)
     <div className="w-full mx-auto p-0 relative max-w-[1440px]">
-      {/* Transition overlay */}
+      {/* Overlay de Transição (sem alterações) */}
       <div
         className={`fixed top-0 left-0 right-0 bottom-0 bg-black z-[100] pointer-events-none transition-opacity duration-500 ease-out ${
           transitionComplete ? 'opacity-0' : 'opacity-100'
         }`}
       ></div>
 
-      {/* Hero Image - optimized to prevent flash */}
+      {/* Hero Image (sem alterações) */}
       <div aria-label={heroImageAlt}>
         <HeroImage
           src={heroImageSrc}
@@ -510,23 +515,22 @@ const ProjectDetailPage: React.FC = () => {
         />
       </div>
 
-      {/* Project details */}
+      {/* Detalhes do Projeto (sem alterações estruturais) */}
       <div className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Left column - black background */}
+          {/* Coluna Esquerda */}
           <div className="bg-jumbo-950 text-white">
             <div className="p-16 md:p-16 sm:p-8">
-              {/* Title with animation only on first mount */}
+              {/* Categoria */}
+              <CategoryChip
+                category={
+                  isGerman
+                    ? project.category_de || project.category
+                    : project.category_en || project.category
+                }
+              />
+              {/* Título com Animação */}
               <div className="mb-16">
-                {/* Category chip above title */}
-                <CategoryChip
-                  category={
-                    isGerman
-                      ? project.category_de || project.category
-                      : project.category_en || project.category
-                  }
-                />
-
                 {firstMountRef.current ? (
                   <motion.div
                     initial={{ opacity: 0, x: -40 }}
@@ -553,16 +557,13 @@ const ProjectDetailPage: React.FC = () => {
                     />
                   </h2>
                 )}
-
-                {/* Brazilian title if available */}
                 {project.title_bra && (
                   <h3 className="text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
                     {project.title_bra}
                   </h3>
                 )}
               </div>
-
-              {/* Project metadata - only show fields with data */}
+              {/* Metadata */}
               <div className="mb-8 grid grid-cols-[3rem_1fr] gap-y-4">
                 {project.client && (
                   <>
@@ -574,7 +575,6 @@ const ProjectDetailPage: React.FC = () => {
                     </div>
                   </>
                 )}
-
                 {project.agency && (
                   <>
                     <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
@@ -585,7 +585,6 @@ const ProjectDetailPage: React.FC = () => {
                     </div>
                   </>
                 )}
-
                 {project.creativeDirection && (
                   <>
                     <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
@@ -596,7 +595,6 @@ const ProjectDetailPage: React.FC = () => {
                     </div>
                   </>
                 )}
-
                 {project.year && (
                   <>
                     <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
@@ -606,7 +604,6 @@ const ProjectDetailPage: React.FC = () => {
                   </>
                 )}
               </div>
-
               {project.copyright && (
                 <div className="font-inter font-light text-sm text-jumbo-300">
                   {project.copyright}
@@ -614,8 +611,7 @@ const ProjectDetailPage: React.FC = () => {
               )}
             </div>
           </div>
-
-          {/* Right column - white background */}
+          {/* Coluna Direita */}
           <div className="bg-jumbo-50 text-jumbo-950">
             <div className="p-16 md:p-24 sm:p-16 pr-24 md:pr-24 sm:pr-16">
               <div className="max-w-xl">
@@ -659,7 +655,7 @@ const ProjectDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Gallery with improved animations */}
+      {/* Galeria e Projetos Relacionados (sem alterações) */}
       {project.gallery && project.gallery.length > 0 && (
         <div className="w-full">
           <ErrorBoundary
@@ -684,7 +680,6 @@ const ProjectDetailPage: React.FC = () => {
               slug={slug || ''}
               galleryItems={(project.gallery || []).map((item: any) => ({
                 ...item,
-                // Ensure 'image' property exists and is populated
                 image: item.image || item.src || '',
               }))}
               coverImageConfig={project.coverImageConfig}
@@ -693,7 +688,6 @@ const ProjectDetailPage: React.FC = () => {
               isGerman={isGerman}
               isChangingLanguage={isChangingLanguage}
             />
-
             {projects && projects.length > 0 && (
               <RelatedProjects
                 currentProject={project}

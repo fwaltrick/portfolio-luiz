@@ -22,13 +22,13 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   const containerClasses = `flex items-center gap-2 border rounded-md p-1 ${
     isProjectPage
       ? 'border-white/30 bg-transparent language-switcher-container'
-      : 'border-gray-300 bg-white'
+      : 'border-jumbo-200 bg-jumbo-50'
   }`
 
   // Classes para botões inativos
   const inactiveButtonClasses = isProjectPage
-    ? 'bg-transparent text-white/80 hover:bg-white/20'
-    : 'bg-transparent text-gray-600 hover:bg-gray-100'
+    ? 'bg-transparent text-jumbo-50/80 hover:bg-jumbo-50/20'
+    : 'bg-transparent text-jumbo-600 hover:bg-jumbo-100'
 
   return (
     <div

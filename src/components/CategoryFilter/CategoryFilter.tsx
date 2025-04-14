@@ -61,7 +61,7 @@ const CategoryFilter = memo(
           <div className="w-full mb-6">
             <div className="flex justify-end">
               <div
-                className="inline-flex items-center px-3 border border-gray-200 text-sm text-gray-400 rounded-lg bg-gray-50 cursor-not-allowed"
+                className="inline-flex items-center px-3 border border-jumbo-200 text-sm text-jumbo-400 rounded-lg bg-jumbo-50 cursor-not-allowed"
                 style={{ height: '40px' }}
               >
                 <span>{t('filter.filterBy', 'Filter by')}</span>
@@ -103,7 +103,7 @@ const CategoryFilter = memo(
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
                   onClick={clearAllFilters}
-                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200 font-light mr-3"
+                  className="text-sm text-jumbo-500 hover:text-jumbo-700 transition-colors duration-200 font-light mr-3"
                   type="button"
                 >
                   {t('filter.clearAll', 'Clear all')}
@@ -115,7 +115,7 @@ const CategoryFilter = memo(
             <button
               onClick={toggleFilter}
               type="button"
-              className="inline-flex items-center px-3 border border-gray-300 hover:border-gray-400 text-sm text-gray-700 rounded-lg transition-colors duration-200 font-light bg-white cursor-pointer"
+              className="inline-flex items-center px-3 border border-jumbo-200 hover:border-jumbo-400 text-sm text-jumbo-950 rounded-lg transition-colors duration-200 font-light bg-jumbo-50 cursor-pointer"
               aria-expanded={isFilterOpen}
               aria-controls="category-filter-options"
               style={{ height: '40px' }}
@@ -168,8 +168,8 @@ const CategoryFilter = memo(
                       onClick={() => toggleCategory(category)}
                       className={`cursor-pointer text-sm rounded-md transition-colors duration-200 font-light flex items-center ${
                         selectedCategories.includes(category)
-                          ? 'bg-black text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-jumbo-950 text-jumbo-50'
+                          : 'bg-jumbo-100 text-jumbo-700 hover:bg-jumbo-200'
                       }`}
                       style={{
                         height: '32px',

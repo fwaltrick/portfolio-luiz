@@ -1,24 +1,19 @@
 // src/App.tsx
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
-import AboutPage from './pages/About'
-import ProjectDetail from './pages/ProjectDetail'
-import HomePage from './pages/Home'
+import { Outlet } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ProjectsProvider from './contexts/ProjectsProvider'
+import ScrollToTop from './components/ScrollToTop' // Importe o componente
 
 const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col relative">
       <ProjectsProvider>
         <Header />
+        <ScrollToTop />
         <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/project/:slug" element={<ProjectDetail />} />
-          </Routes>
+          <Outlet />
         </main>
         <Footer />
       </ProjectsProvider>

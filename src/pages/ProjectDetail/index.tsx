@@ -12,7 +12,7 @@ import ProjectGallery from '../../components/ProjectGallery' // Ajuste o caminho
 import RelatedProjects from '../../components/RelatedProjects' // Ajuste o caminho se necessário
 import Loader from '../../components/Loader' // Ajuste o caminho se necessário
 
-// --- Error Boundary (sem alterações) ---
+// --- Error Boundary ---
 class ErrorBoundary extends React.Component<
   {
     children: React.ReactNode
@@ -46,7 +46,7 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// --- Interfaces (sem alterações) ---
+// --- Interfaces ---
 interface GalleryItem {
   desktopOnly: boolean
   mobileOnly: boolean
@@ -102,7 +102,7 @@ interface TranslatedTextProps {
   isChanging: boolean
 }
 
-// --- Componentes Memoizados (sem alterações) ---
+// --- Componentes Memoizados ---
 const HeroImage = React.memo(
   ({ src, fallbackSrc, alt }: HeroImageProps) => (
     <div className="relative w-full h-[100vh] overflow-hidden bg-black">
@@ -117,7 +117,7 @@ const HeroImage = React.memo(
           }}
         />
       </picture>
-      <div className="absolute top-0 left-0 right-0 h-[150px] bg-gradient-to-b from-black/80 to-transparent pointer-events-none z-10"></div>
+      <div className="absolute top-0 left-0 right-0 h-[180px] bg-gradient-to-b from-black/40 via-black/20 to-transparent pointer-events-none z-10"></div>
     </div>
   ),
   (prev, next) =>
@@ -165,15 +165,16 @@ const ProjectDetailPage: React.FC = () => {
   const [, setImageVisible] = useState<boolean>(false)
   const [transitionComplete, setTransitionComplete] = useState<boolean>(false)
   const [isChangingLanguage, setIsChangingLanguage] = useState<boolean>(false)
+  const [isTitleVisible, setIsTitleVisible] = useState<boolean>(false)
 
   // Refs
   const imageRef = useRef<HTMLDivElement | null>(null)
-  const firstMountRef = useRef<boolean>(true)
   const tinaProjectRef = useRef<TinaProject | null>(null)
   const scrollPositionRef = useRef<number>(0)
   const prevLanguageRef = useRef<string>(i18n.language)
+  const titleObserverRef = useRef<HTMLDivElement | null>(null)
 
-  // URLs de Imagem Memoizadas (sem alterações)
+  // URLs de Imagem Memoizadas
   const heroImageSrc = useMemo(
     () => (slug ? `/images/optimized/${slug}/hero.jpg` : ''),
     [slug],
@@ -184,7 +185,14 @@ const ProjectDetailPage: React.FC = () => {
     [project?.imageUrl, slug],
   )
 
-  // Efeitos (Body Styling e IntersectionObserver sem alterações)
+  // --- Efeitos ---
+
+  // Resetar visibilidade do título ao mudar de projeto (slug)
+  useEffect(() => {
+    setIsTitleVisible(false)
+  }, [slug])
+
+  // Efeito de Body Styling
   useEffect(() => {
     document.body.classList.add('overflow-x-hidden')
     document.body.style.margin = '0'
@@ -198,6 +206,7 @@ const ProjectDetailPage: React.FC = () => {
     }
   }, [])
 
+  // Intersection Observer para a imagem de capa
   useEffect(() => {
     if (!imageRef.current) return
     const observer = new IntersectionObserver(
@@ -210,10 +219,47 @@ const ProjectDetailPage: React.FC = () => {
       { threshold: 0.1, rootMargin: '100px 0px' },
     )
     observer.observe(imageRef.current)
-    return () => observer.disconnect()
+    return () => observer.disconnect() // Usa disconnect pois só precisa uma vez
   }, [])
 
-  // Fetch TinaCMS (sem alterações)
+  // Intersection Observer para o Título
+  useEffect(() => {
+    const titleElement = titleObserverRef.current
+    // Não faz nada se o elemento não existir ou se já estiver visível (otimização)
+    if (!titleElement || isTitleVisible) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry.isIntersecting) {
+          // console.log(`[Observer - ${slug}] Title is intersecting!`);
+          setIsTitleVisible(true)
+          // Para de observar este elemento específico após se tornar visível
+          // Não usamos disconnect() aqui para caso o observer seja reutilizado internamente pelo React
+          observer.unobserve(titleElement)
+        }
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px -50px 0px', // Trigger um pouco antes de entrar totalmente
+      },
+    )
+
+    observer.observe(titleElement)
+
+    // Função de limpeza para este efeito específico
+    return () => {
+      // Para de observar o elemento atual quando o efeito for limpo
+      // (seja por unmount ou por mudança nas dependências que causa re-execução)
+      if (titleElement) {
+        observer.unobserve(titleElement)
+      }
+    }
+    // Depende de 'project' para re-rodar quando os dados do projeto mudam
+    // E de 'isTitleVisible' para não recriar o observer se já estiver visível
+  }, [project, isTitleVisible])
+
+  // Fetch TinaCMS
   const fetchTinaProject =
     useCallback(async (): Promise<TinaProject | null> => {
       if (!slug) return null
@@ -231,22 +277,18 @@ const ProjectDetailPage: React.FC = () => {
       }
     }, [slug])
 
-  // ***** EFEITO DE CARREGAMENTO DE DADOS MODIFICADO *****
+  // Efeito de Carregamento de Dados
   useEffect(() => {
-    // Reseta o estado de firstMount para animação do título em CADA navegação
-    // (Se você quiser a animação só na primeira visita ao site, mova este ref para um contexto)
-    firstMountRef.current = true
-    console.log('[ProjectDetail] Load Effect Triggered. Slug:', slug)
-
     const loadProject = async () => {
       if (!slug) {
         setLoading(false)
         return
       }
-
       setLoading(true)
       setError(null)
-      setProject(null) // Limpa o projeto anterior para evitar flash de conteúdo antigo
+      // Não resetamos 'project' aqui para evitar piscar se a navegação for rápida?
+      // Vamos manter o reset por enquanto para garantir estado limpo.
+      setProject(null)
 
       try {
         const tinaData = await fetchTinaProject()
@@ -254,15 +296,14 @@ const ProjectDetailPage: React.FC = () => {
 
         if (tinaData) {
           tinaProjectRef.current = tinaData
-          // Cria o objeto formatado (seu código original aqui)
           const formattedProject = {
             id: tinaData._sys.filename,
             slug: tinaData.slug,
-            title: tinaData.title_en || tinaData.title_de, // Use um fallback
+            title: tinaData.title_en || tinaData.title_de,
             title_de: tinaData.title_de,
             title_en: tinaData.title_en,
             title_bra: tinaData.title_bra,
-            category: tinaData.category_en || tinaData.category_de, // Use um fallback
+            category: tinaData.category_en || tinaData.category_de,
             category_de: tinaData.category_de,
             category_en: tinaData.category_en,
             client: tinaData.client,
@@ -270,7 +311,7 @@ const ProjectDetailPage: React.FC = () => {
             year: tinaData.year,
             creativeDirection: tinaData.creativeDirection,
             copyright: tinaData.copyright,
-            description: tinaData.description_en || tinaData.description_de, // Use um fallback
+            description: tinaData.description_en || tinaData.description_de,
             description_de: tinaData.description_de,
             description_en: tinaData.description_en,
             coverImageConfig: tinaData.coverImageConfig
@@ -300,7 +341,6 @@ const ProjectDetailPage: React.FC = () => {
           }
           finalProjectData = formattedProject as unknown as Project
         } else {
-          // Fallback para o contexto se Tina não retornar dados
           const contextProject = projects?.find((p) => p.slug === slug)
           if (contextProject) {
             finalProjectData = contextProject
@@ -309,16 +349,10 @@ const ProjectDetailPage: React.FC = () => {
           }
         }
 
-        // Define o estado SOMENTE se um projeto foi encontrado
+        // Define o estado APENAS se um projeto foi encontrado
         if (finalProjectData) {
           setProject(finalProjectData)
-
-          // ***** LÓGICA DE SCROLL ADICIONADA AQUI *****
-          requestAnimationFrame(() => {
-            window.scrollTo(0, 0)
-            console.log('[ProjectDetail] Scrolled to top after project load.')
-          })
-          // ******************************************
+          // Scroll para o topo é agora tratado pelo ScrollToTop ou ScrollRestoration no App.tsx
         } else {
           setProject(null) // Garante limpeza se não achar
         }
@@ -332,13 +366,10 @@ const ProjectDetailPage: React.FC = () => {
     }
 
     loadProject()
+  }, [slug, fetchTinaProject, projects]) // Dependências do carregamento
 
-    // Mantenha as dependências que podem causar a recarga dos dados do projeto
-  }, [slug, fetchTinaProject, projects]) // Removi isGerman daqui, a menos que fetchTinaProject dependa dela
-
-  // Efeito de Mudança de Idioma (sem alterações, mas revisado)
+  // Efeito de Mudança de Idioma
   useEffect(() => {
-    // Não roda na primeira montagem do componente, só em mudanças de idioma subsequentes
     if (prevLanguageRef.current === i18n.language) {
       return
     }
@@ -347,31 +378,25 @@ const ProjectDetailPage: React.FC = () => {
     scrollPositionRef.current = window.scrollY
     prevLanguageRef.current = i18n.language
 
-    // Atraso para permitir a renderização do novo idioma antes de restaurar o scroll
     const restoreScrollTimer = setTimeout(() => {
       window.scrollTo(0, scrollPositionRef.current)
-      // Atraso adicional para remover o estado de 'mudando'
       const transitionEndTimer = setTimeout(() => {
         setIsChangingLanguage(false)
-      }, 50) // Pequeno atraso para garantir que o scroll terminou
+      }, 50)
 
-      // Limpeza do timer interno
       return () => clearTimeout(transitionEndTimer)
-    }, 150) // Aumentei um pouco o delay para garantir renderização do novo idioma
+    }, 150)
 
-    // Limpeza do timer principal
     return () => clearTimeout(restoreScrollTimer)
-  }, [i18n.language]) // Dependência correta é apenas o idioma
+  }, [i18n.language])
 
-  // ---- Lógica de Renderização (sem alterações significativas) ----
+  // ---- Lógica de Renderização ----
 
-  // Descrição Atual Memoizada
   const currentDescription = useMemo(() => {
     if (!project) return null
     return isGerman ? project.description_de : project.description_en
   }, [project, isGerman])
 
-  // Componentes Markdown (sem alterações)
   const markdownComponents = {
     h1: (props: { children: React.ReactNode }) => (
       <h1 className="text-2xl font-staatliches mb-4 text-jumbo-900">
@@ -448,7 +473,6 @@ const ProjectDetailPage: React.FC = () => {
 
   // Render Error
   if (error) {
-    // (Código de erro sem alterações)
     return (
       <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12">
         <h2 className="text-xl font-bold text-red-500 mb-4">
@@ -467,7 +491,6 @@ const ProjectDetailPage: React.FC = () => {
 
   // Render Not Found
   if (!project) {
-    // (Código Not Found sem alterações)
     return (
       <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12 text-jumbo-800">
         {isGerman ? 'Projekt nicht gefunden' : 'Project not found'}
@@ -475,7 +498,7 @@ const ProjectDetailPage: React.FC = () => {
     )
   }
 
-  // Prepare labels (sem alterações)
+  // Prepare labels
   const labels = {
     for: isGerman ? 'FÜR' : 'FOR',
     at: isGerman ? 'BEI' : 'AT',
@@ -497,16 +520,15 @@ const ProjectDetailPage: React.FC = () => {
 
   // ---- JSX de Retorno Principal ----
   return (
-    // Container principal (sem alterações)
     <div className="w-full mx-auto p-0 relative max-w-[1440px]">
-      {/* Overlay de Transição (sem alterações) */}
+      {/* Overlay de Transição */}
       <div
         className={`fixed top-0 left-0 right-0 bottom-0 bg-black z-[100] pointer-events-none transition-opacity duration-500 ease-out ${
           transitionComplete ? 'opacity-0' : 'opacity-100'
         }`}
       ></div>
 
-      {/* Hero Image (sem alterações) */}
+      {/* Hero Image */}
       <div aria-label={heroImageAlt}>
         <HeroImage
           src={heroImageSrc}
@@ -515,13 +537,12 @@ const ProjectDetailPage: React.FC = () => {
         />
       </div>
 
-      {/* Detalhes do Projeto (sem alterações estruturais) */}
+      {/* Detalhes do Projeto */}
       <div className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Coluna Esquerda */}
           <div className="bg-jumbo-950 text-white">
             <div className="p-16 md:p-16 sm:p-8">
-              {/* Categoria */}
               <CategoryChip
                 category={
                   isGerman
@@ -531,24 +552,16 @@ const ProjectDetailPage: React.FC = () => {
               />
               {/* Título com Animação */}
               <div className="mb-16">
-                {firstMountRef.current ? (
-                  <motion.div
-                    initial={{ opacity: 0, x: -40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.9, ease: 'easeOut' }}
-                    onAnimationComplete={() => {
-                      firstMountRef.current = false
-                    }}
-                  >
-                    <h2 className="[text-wrap:balance] text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
-                      <TranslatedText
-                        german={project.title_de || project.title}
-                        english={project.title_en || project.title}
-                        isChanging={isChangingLanguage}
-                      />
-                    </h2>
-                  </motion.div>
-                ) : (
+                <motion.div
+                  ref={titleObserverRef}
+                  initial={{ opacity: 0, x: -40 }}
+                  animate={
+                    isTitleVisible
+                      ? { opacity: 1, x: 0 }
+                      : { opacity: 0, x: -40 }
+                  }
+                  transition={{ duration: 0.9, ease: 'easeOut' }}
+                >
                   <h2 className="[text-wrap:balance] text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
                     <TranslatedText
                       german={project.title_de || project.title}
@@ -556,7 +569,7 @@ const ProjectDetailPage: React.FC = () => {
                       isChanging={isChangingLanguage}
                     />
                   </h2>
-                )}
+                </motion.div>
                 {project.title_bra && (
                   <h3 className="text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
                     {project.title_bra}
@@ -655,8 +668,9 @@ const ProjectDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Galeria e Projetos Relacionados (sem alterações) */}
-      {project.gallery && project.gallery.length > 0 && (
+      {/* Galeria e Projetos Relacionados */}
+      {/* Renderiza somente se 'project' e 'projects' existirem */}
+      {project && projects && projects.length > 0 && (
         <div className="w-full">
           <ErrorBoundary
             isGerman={isGerman}
@@ -676,24 +690,23 @@ const ProjectDetailPage: React.FC = () => {
               </div>
             }
           >
-            <ProjectGallery
-              slug={slug || ''}
-              galleryItems={(project.gallery || []).map((item: any) => ({
-                ...item,
-                image: item.image || item.src || '',
-              }))}
-              coverImageConfig={project.coverImageConfig}
-              coverImage={project.coverImage}
-              heroImageAlt={heroImageAlt}
-              isGerman={isGerman}
-              isChangingLanguage={isChangingLanguage}
-            />
-            {projects && projects.length > 0 && (
-              <RelatedProjects
-                currentProject={project}
-                allProjects={projects}
+            {/* Renderiza a Galeria apenas se houver itens */}
+            {project.gallery && project.gallery.length > 0 && (
+              <ProjectGallery
+                slug={slug || ''}
+                galleryItems={(project.gallery || []).map((item: any) => ({
+                  ...item,
+                  image: item.image || item.src || '',
+                }))}
+                coverImageConfig={project.coverImageConfig}
+                coverImage={project.coverImage}
+                heroImageAlt={heroImageAlt}
+                isGerman={isGerman}
+                isChangingLanguage={isChangingLanguage}
               />
             )}
+            {/* Renderiza Projetos Relacionados */}
+            <RelatedProjects currentProject={project} allProjects={projects} />
           </ErrorBoundary>
         </div>
       )}

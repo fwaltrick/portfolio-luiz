@@ -178,7 +178,6 @@ const RelatedProjects: React.FC<RelatedProjectsProps> = ({
                                 line-clamp-2 md:line-clamp-none" // Verifique se line-clamp ainda é desejado
                     title={projectTitle} // Tooltip com o título completo
                   >
-                    {/* *** MUDANÇA AQUI: Exibir título truncado *** */}
                     {displayTitle}
                   </h3>
                 </Link>

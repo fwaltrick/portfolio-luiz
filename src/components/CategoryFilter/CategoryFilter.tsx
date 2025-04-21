@@ -1,4 +1,3 @@
-/// src/components/CategoryFilter/CategoryFilter.tsx
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -64,7 +63,7 @@ const CategoryFilter = memo(
                 className="inline-flex items-center px-3 border border-jumbo-200 text-sm text-jumbo-400 rounded-lg bg-jumbo-50 cursor-not-allowed"
                 style={{ height: '40px' }}
               >
-                <span>{t('filter.filterBy', 'Filter by')}</span>
+                <span>{t('filter.filterBy', 'Areas')}</span>
                 <svg
                   className="ml-1.5 h-4 w-4"
                   fill="none"
@@ -120,7 +119,7 @@ const CategoryFilter = memo(
               aria-controls="category-filter-options"
               style={{ height: '40px' }}
             >
-              <span>{t('filter.filterBy', 'Filter by')}</span>
+              <span>{t('filter.filterBy', 'Areas')}</span>
               <svg
                 className={`ml-1.5 h-4 w-4 transform transition-transform duration-200 ${
                   isFilterOpen ? 'rotate-180' : ''

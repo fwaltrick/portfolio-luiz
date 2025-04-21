@@ -30,7 +30,7 @@
     "viewProject": "View Project"
   },
   "filter": {
-    "filterBy": "Filter by",
+    "filterBy": "Areas",
     "clearAll": "Clear all",
     "activeFilters": "Active filters"
   },
@@ -39,6 +39,6 @@
   "category.interactiveDesign": "Interactive Design",
   "category.productDesign": "Product Design",
   "category.exhibition": "Exhibition",
-  "filter.filterBy": "Filter by",
+  "filter.filterBy": "Areas",
   "filter.clearAll": "Clear all"
 }

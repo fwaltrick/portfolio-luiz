@@ -99,7 +99,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = memo(
           />
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 w-full pt-6 pb-12 md:pt-6 md:pb-16 lg:pt-6 lg:pb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 w-full pt-0 pb-12 md:pt-0 md:pb-16 lg:pt-0 lg:pb-20">
           <AnimatePresence>
             {filteredProjects.map((project, index) => (
               <motion.div
@@ -142,7 +142,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = memo(
                         src={getOptimizedImagePath(project)}
                         alt={project.title}
                         className="absolute inset-0 w-full h-full object-cover"
-                        loading="lazy"
+                        loading={index < 6 ? 'eager' : 'lazy'}
                         fetchPriority={index < 6 ? 'high' : 'auto'}
                         decoding="async"
                         variants={{

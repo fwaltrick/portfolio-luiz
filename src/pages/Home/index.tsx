@@ -12,7 +12,7 @@ const HomePage: React.FC = () => {
 
   // Pass the projects and loading state directly to ProjectGrid
   return (
-    <div className="container-custom pt-4">
+    <div className="w-full pt-4 container-custom">
       <ProjectGrid projects={projects} loading={loading} />
     </div>
   )

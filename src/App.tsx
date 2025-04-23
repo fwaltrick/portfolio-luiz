@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ProjectsProvider from './contexts/ProjectsProvider'
-import ScrollToTop from './components/ScrollToTop' // Importe o componente
+import ScrollToTop from './components/ScrollToTop'
 
 const App: React.FC = () => {
   return (
@@ -13,7 +13,8 @@ const App: React.FC = () => {
         <Header />
         <ScrollToTop />
         <main className="flex-grow">
-          <Outlet />
+          {' '}
+          <Outlet />{' '}
         </main>
         <Footer />
       </ProjectsProvider>

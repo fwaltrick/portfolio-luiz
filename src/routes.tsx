@@ -4,6 +4,7 @@ import App from './App'
 import Home from './pages/Home'
 import ProjectDetailPage from './pages/ProjectDetail'
 import AboutPage from './pages/About'
+import ImpressumPage from './pages/Impressum'
 
 // Definindo as rotas
 const routes: RouteObject[] = [
@@ -22,6 +23,10 @@ const routes: RouteObject[] = [
       {
         path: 'about',
         element: <AboutPage />,
+      },
+      {
+        path: 'impressum',
+        element: <ImpressumPage />,
       },
     ],
   },

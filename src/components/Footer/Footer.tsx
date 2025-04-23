@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   // Classes condicionais baseadas na página atual
   const footerClasses = isProjectDetailPage
     ? 'py-4 bg-jumbo-950 text-white'
-    : 'py-4 border-t border-gray-200'
+    : 'py-4 border-t border-jumbo-200'
 
   const logoClasses = isProjectDetailPage
     ? 'text-xl tracking-(0.015em) font-[Staatliches] text-white'

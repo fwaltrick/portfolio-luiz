@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineConfig } from 'tinacms'
 
 const PREDEFINED_CATEGORIES = {
@@ -22,22 +21,24 @@ const ORIENTATION_OPTIONS = [
 ]
 
 export default defineConfig({
-  branch: '',
-  clientId: '', // Deixe vazio para testes locais
-  token: '', // Deixe vazio para testes locais
+  branch: '', // Considere usar variáveis de ambiente como process.env.GITHUB_BRANCH, etc.
+  clientId: '', // Use process.env.NEXT_PUBLIC_TINA_CLIENT_ID
+  token: '', // Use process.env.TINA_TOKEN
   build: {
     outputFolder: 'admin',
     publicFolder: 'public',
   },
   media: {
     tina: {
-      mediaRoot: 'images/projects',
+      // Ajuste 'mediaRoot' se suas imagens de biografia/páginas
+      // não devem ir para a pasta 'images/projects'
+      mediaRoot: 'images', // Talvez uma pasta mais genérica?
       publicFolder: 'public',
     },
   },
-  // The plugins property is removed since it's not supported
   schema: {
     collections: [
+      // --- Coleção 'project' existente ---
       {
         name: 'project',
         label: 'Projetos',
@@ -87,33 +88,13 @@ export default defineConfig({
             description: 'Use only lowercase letters, numbers, and hyphens',
           },
 
-          // Category fields with field-level hooks for linking
+          // Category fields
           {
             type: 'string',
             name: 'category_en',
             label: 'Category (English)',
             ui: {
-              format: (value) => {
-                setTimeout(() => {
-                  // Use type assertion to bypass TypeScript error
-                  const tinaCMS = (window as any).tinacms
-                  if (typeof window !== 'undefined' && tinaCMS?.form) {
-                    const index = PREDEFINED_CATEGORIES.en.findIndex(
-                      (cat) => cat === value,
-                    )
-                    if (index >= 0) {
-                      const currentDe = tinaCMS.form.values.category_de
-                      if (currentDe !== PREDEFINED_CATEGORIES.de[index]) {
-                        tinaCMS.form.change(
-                          'category_de',
-                          PREDEFINED_CATEGORIES.de[index],
-                        )
-                      }
-                    }
-                  }
-                }, 0)
-                return value
-              },
+              // Hook removido para simplicidade - você pode adicionar de volta se necessário
             },
             options: getCategoryOptions('en'),
             required: true,
@@ -124,27 +105,7 @@ export default defineConfig({
             label: 'Kategorie (Deutsch)',
             ui: {
               component: 'select',
-              validate: (value, allValues, meta) => {
-                // This runs whenever the field changes
-                // Find corresponding English category
-                const index = PREDEFINED_CATEGORIES.de.findIndex(
-                  (cat) => cat === value,
-                )
-                if (
-                  index >= 0 &&
-                  allValues.category_en !== PREDEFINED_CATEGORIES.en[index]
-                ) {
-                  // Update the English field
-                  setTimeout(() => {
-                    ;(meta as any).form?.change(
-                      'category_en',
-                      PREDEFINED_CATEGORIES.en[index],
-                    )
-                  })
-                }
-                // Return undefined for no validation errors
-                return undefined
-              },
+              // Hook removido para simplicidade - você pode adicionar de volta se necessário
             },
             options: getCategoryOptions('de'),
             required: true,
@@ -239,7 +200,7 @@ export default defineConfig({
             ],
           },
 
-          // Legacy cover image field for backward compatibility
+          // Legacy cover image field
           {
             type: 'image',
             name: 'coverImage',
@@ -268,7 +229,7 @@ export default defineConfig({
                 caption_de: '',
                 featured: false,
                 orientation: 'landscape',
-                position: 1,
+                position: 1, // Ajustar lógica de posição se necessário
               },
             },
             fields: [
@@ -342,6 +303,47 @@ export default defineConfig({
           },
         ],
       },
-    ],
-  },
+      {
+        label: 'Pages',
+        name: 'page',
+        path: 'content/pages',
+        format: 'mdx',
+        ui: {
+          /* ... */
+        },
+        fields: [
+          {
+            type: 'string',
+            label: 'Title (English)',
+            name: 'title_en',
+            isTitle: true,
+            required: true,
+          },
+          {
+            type: 'string',
+            label: 'Title (German)',
+            name: 'title_de',
+            required: true,
+          },
+          {
+            type: 'rich-text',
+            label: 'Copy (English)',
+            name: 'copy_en',
+            isBody: false,
+          },
+          {
+            type: 'rich-text',
+            label: 'Copy (German)',
+            name: 'copy_de',
+            isBody: false,
+          },
+          {
+            type: 'image',
+            label: 'Profile Image',
+            name: 'profileImage',
+          },
+        ],
+      },
+    ], // Fim do array 'collections'
+  }, // Fim do objeto 'schema'
 })

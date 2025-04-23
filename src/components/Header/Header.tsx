@@ -23,7 +23,7 @@ const Header = () => {
   const headerClasses = `w-full py-4 z-50 ${
     isProjectDetailPage
       ? 'absolute top-0 left-0 right-0'
-      : 'relative border-b border-gray-200'
+      : 'relative border-b border-jumbo-200'
   }`
 
   return (

@@ -34,6 +34,11 @@
     "clearAll": "Clear all",
     "activeFilters": "Active filters"
   },
+  "notFound": {
+    "title": "Off the Grid",
+    "message": "Looks like this page wasn't part of the final design.",
+    "button": "Back to Portfolio"
+  },
   "category.webDesign": "Web Design",
   "category.brandIdentity": "Brand Identity",
   "category.interactiveDesign": "Interactive Design",

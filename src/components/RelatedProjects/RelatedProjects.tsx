@@ -126,11 +126,7 @@ const RelatedProjects: React.FC<RelatedProjectsProps> = ({
           </h2>
 
           {/* Container para scroll horizontal em mobile */}
-          <div
-            className="flex flex-nowrap gap-6 overflow-x-auto pb-4 md:flex-wrap md:overflow-visible
-                          scrollbar-thin scrollbar-thumb-jumbo-300 scrollbar-track-jumbo-100
-                          -mx-4 px-4 md:mx-0 md:px-0"
-          >
+          <div className="flex flex-nowrap gap-6 overflow-x-auto pb-4 md:justify-between md:overflow-visible scrollbar-thin scrollbar-thumb-jumbo-300 scrollbar-track-jumbo-100-mx-4 px-4 md:mx-0 md:px-0">
             {relatedProjects.map((project) => {
               // Obter o título completo do projeto com base no idioma
               const projectTitle = isGerman

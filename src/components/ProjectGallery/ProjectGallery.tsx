@@ -106,7 +106,6 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
   }
 
   // Process gallery items - handle sorting, filtering, and cover image inclusion
-  // Process gallery items - handle sorting, filtering, and cover image inclusion
   const processedGalleryItems = useMemo(() => {
     // Ensure we have an array to work with
     if (

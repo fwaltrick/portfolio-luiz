@@ -31,7 +31,7 @@ const markdownComponents = {
     </code>
   ),
   p: (props: { children: React.ReactNode }) => (
-    <p className="mb-4 text-xl leading-relaxed font-light">{props.children}</p>
+    <p className="mb-4 text-lg leading-relaxed font-light">{props.children}</p>
   ),
   bold: (props: { children: React.ReactNode }) => (
     <strong className="font-bold">{props.children}</strong>

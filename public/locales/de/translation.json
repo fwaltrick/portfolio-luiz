@@ -34,6 +34,11 @@
     "clearAll": "Alle löschen",
     "activeFilters": "Aktive Filter"
   },
+  "notFound": {
+    "title": "Außerhalb des Rasters",
+    "message": "Diese Seite scheint nicht Teil des finalen Entwurfs gewesen zu sein.",
+    "button": "Zurück zum Portfolio"
+  },
   "category.webDesign": "Webdesign",
   "category.brandIdentity": "Markenidentität",
   "category.interactiveDesign": "Interaktives Design",

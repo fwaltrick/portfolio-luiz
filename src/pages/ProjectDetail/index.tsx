@@ -3,14 +3,15 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { Project } from '../../types' // Ajuste o caminho se necessário
-import useProjects from '../../hooks/useProjects' // Ajuste o caminho se necessário
-import { client } from '../../../tina/__generated__/client' // Ajuste o caminho se necessário
+import { Project } from '../../types'
+import useProjects from '../../hooks/useProjects'
+import { client } from '../../../tina/__generated__/client'
 import { TinaMarkdown } from 'tinacms/dist/rich-text'
 import type { TinaMarkdownContent } from 'tinacms/dist/rich-text'
-import ProjectGallery from '../../components/ProjectGallery' // Ajuste o caminho se necessário
-import RelatedProjects from '../../components/RelatedProjects' // Ajuste o caminho se necessário
-import Loader from '../../components/Loader' // Ajuste o caminho se necessário
+import ProjectGallery from '../../components/ProjectGallery'
+import RelatedProjects from '../../components/RelatedProjects'
+import NotFoundPage from '../NotFound/index'
+import Loader from '../../components/Loader'
 
 // --- Error Boundary ---
 class ErrorBoundary extends React.Component<
@@ -162,6 +163,7 @@ const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [projectNotFound, setProjectNotFound] = useState<boolean>(false)
   const [, setImageVisible] = useState<boolean>(false)
   const [transitionComplete, setTransitionComplete] = useState<boolean>(false)
   const [isChangingLanguage, setIsChangingLanguage] = useState<boolean>(false)
@@ -281,14 +283,16 @@ const ProjectDetailPage: React.FC = () => {
   useEffect(() => {
     const loadProject = async () => {
       if (!slug) {
+        console.warn('ProjectDetailPage: No slug provided.')
+        setProjectNotFound(true)
         setLoading(false)
         return
       }
+
       setLoading(true)
       setError(null)
-      // Não resetamos 'project' aqui para evitar piscar se a navegação for rápida?
-      // Vamos manter o reset por enquanto para garantir estado limpo.
       setProject(null)
+      setProjectNotFound(false)
 
       try {
         const tinaData = await fetchTinaProject()
@@ -341,32 +345,36 @@ const ProjectDetailPage: React.FC = () => {
           }
           finalProjectData = formattedProject as unknown as Project
         } else {
+          console.log(
+            `ProjectDetailPage: Tina data not found for slug "${slug}", checking context...`,
+          )
           const contextProject = projects?.find((p) => p.slug === slug)
           if (contextProject) {
+            console.log(
+              `ProjectDetailPage: Found project in context for slug "${slug}".`,
+            )
             finalProjectData = contextProject
           } else {
-            setError(`Project not found: ${slug}`)
+            console.warn(
+              `ProjectDetailPage: Project with slug "${slug}" not found in Tina or context.`,
+            )
+            setProjectNotFound(true)
           }
         }
 
-        // Define o estado APENAS se um projeto foi encontrado
-        if (finalProjectData) {
-          setProject(finalProjectData)
-          // Scroll para o topo é agora tratado pelo ScrollToTop ou ScrollRestoration no App.tsx
-        } else {
-          setProject(null) // Garante limpeza se não achar
-        }
+        setProject(finalProjectData)
       } catch (err) {
         console.error('Error loading project:', err)
         setError(err instanceof Error ? err.message : String(err))
-        setProject(null) // Limpa em caso de erro
+        setProject(null)
+        setProjectNotFound(false)
       } finally {
         setLoading(false)
       }
     }
 
     loadProject()
-  }, [slug, fetchTinaProject, projects]) // Dependências do carregamento
+  }, [slug, fetchTinaProject, projects])
 
   // Efeito de Mudança de Idioma
   useEffect(() => {
@@ -471,6 +479,10 @@ const ProjectDetailPage: React.FC = () => {
     )
   }
 
+  if (projectNotFound) {
+    return <NotFoundPage />
+  }
+
   // Render Error
   if (error) {
     return (
@@ -491,11 +503,10 @@ const ProjectDetailPage: React.FC = () => {
 
   // Render Not Found
   if (!project) {
-    return (
-      <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12 text-jumbo-800">
-        {isGerman ? 'Projekt nicht gefunden' : 'Project not found'}
-      </div>
+    console.warn(
+      'ProjectDetailPage: Rendering NotFoundPage as fallback because project is null after loading without specific errors.',
     )
+    return <NotFoundPage />
   }
 
   // Prepare labels

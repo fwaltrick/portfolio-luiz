@@ -135,3 +135,10 @@ button,
     border-width: 4px;
   }
 }
+
+a,
+button,
+[role='link'],
+[role='button'] {
+  cursor: pointer;
+}

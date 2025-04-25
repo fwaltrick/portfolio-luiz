@@ -1,44 +1,53 @@
 import { defineConfig } from 'tinacms'
 
+// --- Funções Helper ---
 const PREDEFINED_CATEGORIES = {
   en: ['Exhibition', 'Graphic & Editorial Design', 'TV & Cinema Advertising'],
   de: ['Ausstellung', 'Grafik- & Editorialdesign', 'TV- & Kinowerbung'],
 }
-
-// Create a helper to generate options for select fields
 const getCategoryOptions = (language: 'en' | 'de') => {
   return PREDEFINED_CATEGORIES[language].map((category) => ({
     label: category,
     value: category,
   }))
 }
-
-// Image orientation options
 const ORIENTATION_OPTIONS = [
   { label: 'Landscape (Wide)', value: 'landscape' },
   { label: 'Portrait (Tall)', value: 'portrait' },
   { label: 'Square', value: 'square' },
 ]
+// --- Fim Funções Helper ---
+
+// Lógica para determinar a Branch
+const branch =
+  process.env.BRANCH || // Variável padrão do Netlify para a branch do deploy
+  process.env.HEAD || // Fallback Netlify
+  'main' // Fallback final
 
 export default defineConfig({
-  branch: '', // Considere usar variáveis de ambiente como process.env.GITHUB_BRANCH, etc.
-  clientId: '', // Use process.env.NEXT_PUBLIC_TINA_CLIENT_ID
-  token: '', // Use process.env.TINA_TOKEN
+  // Configurações lidas do process.env
+  branch: branch,
+  // Garanta que TINA_CLIENT_ID esteja definido no Netlify
+  clientId: process.env.TINA_CLIENT_ID || '',
+  // Garanta que TINA_TOKEN esteja definido no Netlify
+  token: process.env.TINA_TOKEN || '',
+
+  // Configurações de Build e Media
   build: {
     outputFolder: 'admin',
     publicFolder: 'public',
   },
   media: {
     tina: {
-      // Ajuste 'mediaRoot' se suas imagens de biografia/páginas
-      // não devem ir para a pasta 'images/projects'
-      mediaRoot: 'images', // Talvez uma pasta mais genérica?
+      mediaRoot: 'images', // Pasta raiz para uploads via Tina Admin
       publicFolder: 'public',
     },
   },
+
+  // Schema com suas coleções
   schema: {
     collections: [
-      // --- Coleção 'project' existente ---
+      // --- Coleção 'project' ---
       {
         name: 'project',
         label: 'Projetos',
@@ -47,18 +56,20 @@ export default defineConfig({
         ui: {
           filename: {
             slugify: (values) => {
+              // Gera slug a partir do campo slug, ou usa 'new-project'
               return `${values?.slug || 'new-project'}`
+                .toLowerCase()
+                .replace(/\s+/g, '-')
             },
           },
         },
         fields: [
-          // Basic fields
+          // Campos básicos...
           {
             type: 'number',
             name: 'order',
-            label: 'Display Order (lower numbers appear first)',
-            description:
-              'Set the display order of this project in the grid (e.g., 1 for first)',
+            label: 'Display Order',
+            description: 'Order in the grid (lower first)',
           },
           {
             type: 'string',
@@ -77,25 +88,19 @@ export default defineConfig({
             type: 'string',
             name: 'title_bra',
             label: 'Título (Português Brasil)',
-            description:
-              'Optional Brazilian Portuguese title that will appear below the main title',
+            description: 'Optional BR title',
           },
           {
             type: 'string',
             name: 'slug',
             label: 'Slug (URL)',
             required: true,
-            description: 'Use only lowercase letters, numbers, and hyphens',
+            description: 'Lowercase, numbers, hyphens only',
           },
-
-          // Category fields
           {
             type: 'string',
             name: 'category_en',
             label: 'Category (English)',
-            ui: {
-              // Hook removido para simplicidade - você pode adicionar de volta se necessário
-            },
             options: getCategoryOptions('en'),
             required: true,
           },
@@ -103,42 +108,19 @@ export default defineConfig({
             type: 'string',
             name: 'category_de',
             label: 'Kategorie (Deutsch)',
-            ui: {
-              component: 'select',
-              // Hook removido para simplicidade - você pode adicionar de volta se necessário
-            },
+            ui: { component: 'select' },
             options: getCategoryOptions('de'),
             required: true,
           },
-
-          // Client fields
-          {
-            type: 'string',
-            name: 'client',
-            label: 'Client / Kunde',
-          },
-          {
-            type: 'string',
-            name: 'agency',
-            label: 'Agency / Agentur',
-          },
-          {
-            type: 'string',
-            name: 'year',
-            label: 'Year / Jahr',
-          },
+          { type: 'string', name: 'client', label: 'Client / Kunde' },
+          { type: 'string', name: 'agency', label: 'Agency / Agentur' },
+          { type: 'string', name: 'year', label: 'Year / Jahr' },
           {
             type: 'string',
             name: 'creativeDirection',
             label: 'Creative Direction',
           },
-          {
-            type: 'string',
-            name: 'copyright',
-            label: 'Copyright',
-          },
-
-          // Description fields
+          { type: 'string', name: 'copyright', label: 'Copyright' },
           {
             type: 'rich-text',
             name: 'description_en',
@@ -150,69 +132,48 @@ export default defineConfig({
             label: 'Beschreibung (Deutsch)',
           },
 
-          // Enhanced Cover Image
+          // Campo 'coverImageConfig' com fields internos preenchidos
           {
             type: 'object',
             name: 'coverImageConfig',
             label: 'Cover Image / Hero Image',
-            ui: {
-              itemProps: () => ({
-                label: 'Cover Image Configuration',
-              }),
-            },
             fields: [
               {
                 type: 'image',
                 name: 'image',
                 label: 'Cover Image',
                 description:
-                  'This image will be used as cover in grid and hero in detail page. After uploading, run the optimization script.',
+                  'Used as cover/hero. Run optimization script after upload.',
                 required: true,
               },
               {
                 type: 'string',
                 name: 'orientation',
                 label: 'Image Orientation',
-                description: 'Select the natural orientation of this image',
-                ui: {
-                  component: 'select',
-                  defaultValue: 'landscape',
-                },
+                ui: { component: 'select', defaultValue: 'landscape' },
                 options: ORIENTATION_OPTIONS,
               },
               {
                 type: 'boolean',
                 name: 'includeInGallery',
                 label: 'Include in Gallery Sequence',
-                description:
-                  'If checked, this cover image will also appear in the gallery sequence',
-                ui: {
-                  defaultValue: false,
-                },
+                ui: { defaultValue: false },
               },
               {
                 type: 'number',
                 name: 'galleryPosition',
                 label: 'Position in Gallery (if included)',
-                description:
-                  'Position number where this image should appear in the sequence (1 for first)',
               },
             ],
           },
-
-          // Legacy cover image field
+          // Campo 'coverImage' Legacy
           {
             type: 'image',
             name: 'coverImage',
             label: 'Cover Image (Legacy)',
-            description:
-              'Legacy field - please use the Cover Image Configuration section above instead.',
-            ui: {
-              component: 'hidden',
-            },
+            ui: { component: 'hidden' },
           },
-
-          // Enhanced Gallery
+          // Campo 'gallery' com fields internos preenchidos
           {
             type: 'object',
             name: 'gallery',
@@ -229,7 +190,7 @@ export default defineConfig({
                 caption_de: '',
                 featured: false,
                 orientation: 'landscape',
-                position: 1, // Ajustar lógica de posição se necessário
+                position: 1,
               },
             },
             fields: [
@@ -237,27 +198,22 @@ export default defineConfig({
                 type: 'image',
                 name: 'image',
                 label: 'Image',
-                description:
-                  'Gallery image. After uploading all images, run the optimization script.',
                 required: true,
+                description:
+                  'Gallery image. Run optimization script after upload.',
               },
               {
                 type: 'string',
                 name: 'orientation',
                 label: 'Image Orientation',
-                description: 'Select the natural orientation of this image',
-                ui: {
-                  component: 'select',
-                  defaultValue: 'landscape',
-                },
+                ui: { component: 'select', defaultValue: 'landscape' },
                 options: ORIENTATION_OPTIONS,
               },
               {
                 type: 'number',
                 name: 'position',
                 label: 'Display Position',
-                description:
-                  'Position number in the sequence (1 for first). Will be automatically assigned but can be changed.',
+                description: 'Sequence order (1 = first)',
               },
               {
                 type: 'string',
@@ -273,44 +229,32 @@ export default defineConfig({
                 type: 'boolean',
                 name: 'featured',
                 label: 'Featured (larger display)',
-                description:
-                  'If checked, this image will span multiple columns on larger screens',
-                ui: {
-                  defaultValue: false,
-                },
+                ui: { defaultValue: false },
               },
               {
                 type: 'boolean',
                 name: 'mobileOnly',
                 label: 'Mobile Only',
-                description:
-                  'If checked, this image will only be shown on mobile devices',
-                ui: {
-                  defaultValue: false,
-                },
+                ui: { defaultValue: false },
               },
               {
                 type: 'boolean',
                 name: 'desktopOnly',
                 label: 'Desktop Only',
-                description:
-                  'If checked, this image will only be shown on desktop devices',
-                ui: {
-                  defaultValue: false,
-                },
+                ui: { defaultValue: false },
               },
             ],
           },
-        ],
-      },
+        ], // Fim dos fields de 'project'
+      }, // Fim da coleção 'project'
+
+      // --- Coleção 'page' ---
       {
         label: 'Pages',
         name: 'page',
         path: 'content/pages',
         format: 'mdx',
-        ui: {
-          /* ... */
-        },
+        ui: { allowedActions: { create: false, delete: false } }, // Impede criar/deletar páginas pela UI
         fields: [
           {
             type: 'string',
@@ -337,13 +281,9 @@ export default defineConfig({
             name: 'copy_de',
             isBody: false,
           },
-          {
-            type: 'image',
-            label: 'Profile Image',
-            name: 'profileImage',
-          },
+          { type: 'image', label: 'Page Image', name: 'profileImage' }, // Renomeado label para Page Image
         ],
-      },
+      }, // Fim da coleção 'page'
     ], // Fim do array 'collections'
   }, // Fim do objeto 'schema'
 })

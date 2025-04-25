@@ -636,14 +636,14 @@ const ProjectDetailPage: React.FC = () => {
             </div>
           </div>
           {/* Coluna Direita */}
-          <div className="bg-jumbo-50 text-jumbo-950">
+          <div className="bg-jumbo-100 text-jumbo-950">
             <div className="p-16 md:p-24 sm:p-16 pr-24 md:pr-24 sm:pr-16">
               <div className="max-w-xl">
                 <div className="prose prose-sm max-w-none">
                   <ErrorBoundary
                     isGerman={isGerman}
                     fallback={
-                      <div className="p-4 bg-jumbo-50 border border-jumbo-200 rounded">
+                      <div className="p-4 bg-jumbo-100 border border-jumbo-200 rounded">
                         <h3 className="text-jumbo-600 font-bold">
                           {errorMessages.title}
                         </h3>

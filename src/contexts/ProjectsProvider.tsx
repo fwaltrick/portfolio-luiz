@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Project } from '../types'
-import { projects as projectsFromFile } from '../data/projectsData'
 import ProjectsContext from './ProjectsContext'
 import { client } from '../../tina/__generated__/client'
 
@@ -53,7 +52,7 @@ const ProjectsProvider: React.FC<ProjectsProviderProps> = ({
         }
 
         // Fallback to file data
-        setRawProjects(projectsFromFile)
+        // setRawProjects(projectsFromFile)
       } catch (err) {
         setError(err instanceof Error ? err : new Error(String(err)))
       } finally {

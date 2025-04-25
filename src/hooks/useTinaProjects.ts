@@ -44,7 +44,10 @@ export default function useTinaProjects() {
               year: node.year || undefined,
               creativeDirection: node.creativeDirection || undefined,
               copyright: node.copyright || undefined,
-              imageUrl: node.coverImage,
+              imageUrl: node.coverImage ?? undefined,
+              coverImage: undefined,
+              coverImageConfig: undefined,
+              order: 0,
             }
 
             return project

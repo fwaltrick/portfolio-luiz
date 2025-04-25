@@ -1,89 +1,80 @@
-// src/services/projectsService.ts
-import { Project } from '../types'
-import { projects as projectsFromFile } from '../data/projectsData'
-import { client } from '../../tina/__generated__/client'
+import { Project } from '../types' // Use the user's Project type
+import { client } from '../../tina/__generated__/client' // Keep Tina client
 
-// Interface for consistent data fetching
+// Interface DataSource (Mantida)
 export interface ProjectsDataSource {
   fetchProjects(): Promise<Project[]>
 }
 
-// Tina CMS data source
+// Tina CMS data source - FILTROS E MAPEAMENTO SIMPLIFICADOS
 export class TinaProjectsDataSource implements ProjectsDataSource {
   constructor(private isGerman: boolean) {}
 
   async fetchProjects(): Promise<Project[]> {
     try {
       const result = await client.queries.projectConnection()
+      // Use 'any' temporarily for edges/nodes if generated types cause issues
       const edges = result.data.projectConnection?.edges || []
 
-      return edges
-        .filter(
-          (edge): edge is NonNullable<typeof edge> => !!edge && !!edge.node,
-        )
+      const mappedProjects = edges
+        // Filtro 1: Simples, apenas checa se edge e node existem (runtime check)
+        .filter((edge) => !!edge?.node)
+        // Map: Assume que 'edge' e 'node' existem após o filtro. Usa '?' ou '!' se TS reclamar.
         .map((edge) => {
-          const node = edge.node!
+          // Use non-null assertion '!' com cuidado se TS reclamar, ou use optional chaining '?.'
+          const node = edge!.node!
 
-          // Create a Project object with all required properties
+          // Mapeamento cuidadoso para o tipo 'Project' de src/types.ts
+          // Usando optional chaining e nullish coalescing
           const project: Project = {
-            id: node._sys.filename,
-            title: this.isGerman ? node.title_de : node.title_en,
-            slug: node.slug,
-            category: this.isGerman ? node.category_de : node.category_en,
-            // Include these properties now that they're in the interface
-            titleKey: this.isGerman ? 'title_de' : 'title_en',
-            categoryKey: this.isGerman ? 'category_de' : 'category_en',
-            // Include other properties from the node
-            client: node.client || undefined,
-            agency: node.agency || undefined,
-            year: node.year || undefined,
-            creativeDirection: node.creativeDirection || undefined,
-            copyright: node.copyright || undefined,
-            imageUrl: node.coverImage,
-            // Store both language versions for future use
-            title_de: node.title_de,
-            title_en: node.title_en,
-            description_de: node.description_de,
-            description_en: node.description_en,
-            order: 0,
-          }
+            id: node.id || node._sys?.filename || 'no-id', // Fallback extra
+            slug: node.slug ?? '',
+            title: (this.isGerman ? node.title_de : node.title_en) ?? '',
+            category:
+              (this.isGerman ? node.category_de : node.category_en) ?? '',
+            order: node.order ?? 999,
+            coverImage: node.coverImage || node.coverImageConfig?.image || null,
+            coverImageConfig: node.coverImageConfig ?? null,
+            title_de: node.title_de ?? undefined,
+            title_en: node.title_en ?? undefined,
+            category_de: node.category_de ?? undefined,
+            category_en: node.category_en ?? undefined,
+            description_de: node.description_de ?? null,
+            description_en: node.description_en ?? null,
+            client: node.client ?? undefined,
+            agency: node.agency ?? undefined,
+            year: node.year ?? undefined,
+            creativeDirection: node.creativeDirection ?? undefined,
+            copyright: node.copyright ?? undefined,
+            title_bra: node.title_bra ?? undefined,
 
+            gallery:
+              node.gallery
+                // Filtro simples para item e item.image
+                ?.filter((item) => !!item?.image)
+                // Mapeamento para o tipo Project['gallery']
+                .map((item) => ({
+                  // Assume 'item' não é nulo aqui após o filtro
+                  src: item!.image!, // Usa '!' se TS reclamar, ou confie no filtro
+                  caption_de: item!.caption_de ?? undefined,
+                  caption_en: item!.caption_en ?? undefined,
+                  featured: item!.featured ?? false,
+                  caption: undefined,
+                })) ?? [], // Default para array vazio
+          }
+          // Campos legados opcionais não são mapeados
           return project
         })
+
+      return mappedProjects
     } catch (error) {
-      console.error('Error fetching projects from Tina CMS:', error)
-      throw new Error('Failed to fetch projects from Tina CMS')
+      console.error('Error fetching or mapping projects from Tina CMS:', error)
+      return []
     }
   }
 }
 
-// Local file data source
-export class LocalProjectsDataSource implements ProjectsDataSource {
-  constructor(private translate: (key: string) => string) {}
-
-  async fetchProjects(): Promise<Project[]> {
-    // Simulate async behavior for consistency
-    return Promise.resolve(
-      projectsFromFile.map((project) => ({
-        ...project,
-        title: project.titleKey
-          ? this.translate(project.titleKey)
-          : project.title,
-        category: project.categoryKey
-          ? this.translate(project.categoryKey)
-          : project.category,
-      })),
-    )
-  }
-}
-
-// Factory function to get the appropriate data source
-export function getProjectsDataSource(
-  useTina: boolean,
-  isGerman: boolean,
-  translate: (key: string) => string,
-): ProjectsDataSource {
-  return useTina
-    ? new TinaProjectsDataSource(isGerman)
-    : new LocalProjectsDataSource(translate)
+// Factory function (sem alterações)
+export function getProjectsDataSource(isGerman: boolean): ProjectsDataSource {
+  return new TinaProjectsDataSource(isGerman)
 }

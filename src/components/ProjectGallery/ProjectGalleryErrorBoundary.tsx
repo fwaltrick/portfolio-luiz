@@ -1,5 +1,5 @@
 // src/components/ProjectGallery/ProjectGalleryErrorBoundary.tsx
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 interface ProjectGalleryErrorBoundaryProps {
   children: ReactNode

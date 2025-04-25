@@ -66,7 +66,7 @@ export function useProjectsData({
         return
       }
 
-      const dataSource = getProjectsDataSource(useTina, isGerman, t)
+      const dataSource = getProjectsDataSource(isGerman)
 
       try {
         // Try to fetch from the primary data source
@@ -88,7 +88,7 @@ export function useProjectsData({
 
         // If primary source returned no projects and it was Tina, try fallback
         if (useTina) {
-          const fallbackSource = getProjectsDataSource(false, isGerman, t)
+          const fallbackSource = getProjectsDataSource(isGerman)
           const fallbackProjects = await fallbackSource.fetchProjects()
 
           // Check if this is still the latest request
@@ -115,7 +115,7 @@ export function useProjectsData({
         // Try fallback if primary source failed and it was Tina
         if (useTina) {
           try {
-            const fallbackSource = getProjectsDataSource(false, isGerman, t)
+            const fallbackSource = getProjectsDataSource(isGerman)
             const fallbackProjects = await fallbackSource.fetchProjects()
 
             // Check if this is still the latest request

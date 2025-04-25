@@ -44,11 +44,10 @@ export default function useTinaProject(slug: string) {
           year: tinaProject.year || undefined,
           creativeDirection: tinaProject.creativeDirection || undefined,
           copyright: tinaProject.copyright || undefined,
-          imageUrl: tinaProject.coverImage,
+          imageUrl: tinaProject.coverImage ?? undefined,
           description: isGerman
             ? tinaProject.description_de
             : tinaProject.description_en,
-          img01: tinaProject.img01 || undefined,
           gallery: tinaProject.gallery
             ? tinaProject.gallery
                 .filter((item): item is NonNullable<typeof item> => !!item) // Filtrar itens nulos
@@ -63,6 +62,9 @@ export default function useTinaProject(slug: string) {
                   featured: item.featured || false,
                 }))
             : undefined,
+          coverImage: undefined,
+          coverImageConfig: undefined,
+          order: 0,
         }
 
         setProject(formattedProject)

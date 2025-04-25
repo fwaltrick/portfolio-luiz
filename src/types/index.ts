@@ -19,12 +19,12 @@ export interface RichTextContent {
 }
 
 export interface Project {
-  coverImage: any
-  coverImageConfig: any
+  coverImage?: any
+  coverImageConfig?: any
   id: string
   title: string
   slug: string
-  order: number
+  order?: number
   category: string
   titleKey?: string
   categoryKey?: string
@@ -49,5 +49,5 @@ export interface Project {
     caption_de?: string
     caption_en?: string
     featured?: boolean
-  }>
+  }> | null
 }

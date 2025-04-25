@@ -147,11 +147,11 @@ const AboutPage: React.FC = () => {
     const baseFilename = originalImagePath.substring(
       originalImagePath.lastIndexOf('/') + 1,
     )
-    optimizedJpegPath = `/images/optimized/about/${baseFilename.replace(
+    optimizedJpegPath = `/images/about/${baseFilename.replace(
       /\.(jpg|jpeg|png)$/i,
       '.jpeg',
     )}`
-    optimizedWebpPath = `/images/optimized/about/${baseFilename.replace(
+    optimizedWebpPath = `/images/about/${baseFilename.replace(
       /\.(jpg|jpeg|png)$/i,
       '.webp',
     )}`

@@ -27,7 +27,7 @@ body {
   overflow: auto;
   -webkit-overflow-scrolling: touch; /* Para suporte melhor em iOS */
   overscroll-behavior: none; /* Previne o bounce em navegadores modernos */
-  background-color: var(--color-jumbo-50);
+  background-color: var(--color-jumbo-100);
 }
 
 /* Especificamente para páginas de detalhes de projeto */

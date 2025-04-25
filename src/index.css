@@ -39,6 +39,13 @@ body.project-detail-page {
   position: relative;
 }
 
+a,
+button,
+[role='link'],
+[role='button'] {
+  @apply cursor-pointer;
+}
+
 /* Suas camadas personalizadas */
 @utility base {
   body {

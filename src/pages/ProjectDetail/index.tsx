@@ -417,7 +417,7 @@ const ProjectDetailPage: React.FC = () => {
       </h2>
     ),
     p: (props: { children: React.ReactNode }) => (
-      <p className="mb-4 text-base leading-relaxed font-light text-jumbo-800">
+      <p className="mb-4 text-base leading-relaxed font-light text-jumbo-950">
         {props.children}
       </p>
     ),
@@ -451,7 +451,7 @@ const ProjectDetailPage: React.FC = () => {
       <em className="italic text-jumbo-800">{props.children}</em>
     ),
     code: (props: { children: React.ReactNode }) => (
-      <code className="text-xl font-staatliches text-jumbo-500 pr-0.5">
+      <code className="text-xl font-staatliches text-jumbo-600 pr-0.5">
         {props.children}
       </code>
     ),

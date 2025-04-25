@@ -112,7 +112,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = memo(
               >
                 <Link
                   to={`/project/${project.slug}`}
-                  className="block rounded-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="block rounded-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
                   aria-label={`${project.title} - ${project.category}`}
                 >
                   <motion.div

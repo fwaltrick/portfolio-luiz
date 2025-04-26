@@ -6,6 +6,7 @@ import { useTina } from 'tinacms/dist/react'
 import { TinaMarkdown } from 'tinacms/dist/rich-text'
 import type { TinaMarkdownContent } from 'tinacms/dist/rich-text'
 import Loader from '../../components/Loader'
+import { Link } from 'react-router-dom'
 
 // --- Interfaces ---
 interface PageData {
@@ -125,9 +126,34 @@ const AboutPage: React.FC = () => {
   }
   if (error) {
     return renderWrapper(
-      <div className="text-red-600">
-        <h1 className="text-3xl font-staatliches font-bold mb-6">Error</h1>
-        <p>Failed to load content: {error}</p>
+      <div className="flex flex-col flex-grow items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <h1 className="text-4xl md:text-8xl font-staatliches font-bold text-red-400 mb-4">
+          Erro
+        </h1>
+        <h2 className="text-4xl md:text-4xl font-staatliches font-semibold text-jumbo-800 mb-6">
+          Falha ao Carregar Conteúdo
+        </h2>
+        <p className="text-balance text-lg text-jumbo-600 mb-8 max-w-md">
+          Ocorreu um erro ao tentar carregar o conteúdo desta página. Por favor,
+          tente novamente mais tarde.
+          {/* Você pode optar por exibir o erro detalhado aqui, mas cuidado com informações sensíveis em produção */}
+          {/* <br /> */}
+          {/* <span className="text-red-600 font-medium">{error}</span> */}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="inline-block bg-jumbo-950 text-white px-6 py-3 rounded-md hover:bg-jumbo-700 transition-colors duration-300 text-lg font-medium"
+        >
+          Tentar Novamente
+        </button>
+        {/* Opcional: Adicionar um link de volta à página inicial */}
+        <Link
+          to="/"
+          className="mt-4 inline-block text-jumbo-500 hover:underline"
+        >
+          Voltar ao Início
+        </Link>
+        */
       </div>,
     )
   }

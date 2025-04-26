@@ -39,6 +39,15 @@ const markdownComponents = {
   h6: (props: { children: React.ReactNode }) => (
     <h6 className="mb-4 text-2xl leading-snug font-light">{props.children}</h6>
   ),
+  a: (props: { children: React.ReactNode; href?: string }) => (
+    <a
+      href={props.href}
+      className="text-jumbo-500 underline" // Aplica a cor jumbo e o underline
+      style={{ textDecoration: 'underline' }} // Garante o underline para clientes de email
+    >
+      {props.children}
+    </a>
+  ),
 }
 
 // --- Componente Principal AboutPage ---

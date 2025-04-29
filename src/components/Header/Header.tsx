@@ -95,14 +95,14 @@ const Header = () => {
           >
             {t('nav.about')}
           </Link>
-          <a
+          {/* <a
             href="mailto:domluiz@gmail.com"
             className={`text-md font-sans hover:underline ${
               isProjectDetailPage ? 'text-white' : 'text-gray-700'
             }`}
           >
             {t('nav.contact')}
-          </a>
+          </a> */}
           <LanguageSwitcher />
         </div>
 
@@ -198,7 +198,7 @@ const Header = () => {
             >
               {t('nav.about')}
             </Link>
-            <a
+            {/* <a
               href="mailto:domluiz@gmail.com"
               className={`block px-2 py-1 text-sm font-sans rounded hover:bg-gray-100 ${
                 isProjectDetailPage ? 'hover:text-gray-900' : ''
@@ -206,7 +206,7 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               {t('nav.contact')}
-            </a>
+            </a> */}
             <div className="border-gray-200 mt-2">
               <LanguageSwitcher />
             </div>

@@ -18,17 +18,14 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     [i18n],
   )
 
-  // --- REVERTENDO PARA p-1 DO CONTAINER ---
   const containerClasses = `inline-flex items-center border rounded-md p-1 gap-2 relative w-fit ${
-    // Revertido para p-1
     isProjectPage
       ? 'border-white/30 bg-transparent'
       : 'border-jumbo-200 bg-jumbo-50'
   }`
 
-  // --- REVERTENDO PARA px-2 py-1 NOS BOTÕES ---
-  const fixedButtonWidth = 'w-10' // Mantendo w-10
-  const baseButtonClasses = `relative z-10 bg-transparent ${fixedButtonWidth} text-center px-2 py-1 text-sm font-sans rounded cursor-pointer transition-colors duration-300 ease-in-out` // Revertido para px-2 py-1
+  const fixedButtonWidth = 'w-10'
+  const baseButtonClasses = `relative z-10 bg-transparent ${fixedButtonWidth} text-center px-2 py-1 text-sm font-sans rounded cursor-pointer transition-colors duration-300 ease-in-out`
 
   const activeTextClasses = 'text-white font-medium'
   const inactiveTextClasses = isProjectPage
@@ -37,11 +34,9 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
 
   // Translação não muda (w-10 + gap-2)
   const indicatorTranslate = 'translate-x-12'
-
-  // --- AJUSTE POSIÇÃO INDICADOR PARA p-1 DO CONTAINER ---
-  const indicatorVerticalPosition = 'top-1 bottom-1' // Revertido para top-1 bottom-1
-  const indicatorHorizontalPosition = 'left-1' // Revertido para left-1
-  const indicatorWidth = fixedButtonWidth // Mantém w-10
+  const indicatorVerticalPosition = 'top-1 bottom-1'
+  const indicatorHorizontalPosition = 'left-1'
+  const indicatorWidth = fixedButtonWidth
 
   return (
     <div

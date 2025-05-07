@@ -46,6 +46,9 @@ button,
   @apply cursor-pointer;
 }
 
+.prose strong {
+  font-weight: theme('fontWeight.bold');
+}
 /* Suas camadas personalizadas */
 @utility base {
   body {
@@ -72,6 +75,7 @@ button,
 
 @theme {
   --font-staatliches: 'Staatliches', 'Impact', sans-serif;
+  --font-sans: 'Inter', 'Arial', sans-serif;
 }
 
 @font-face {

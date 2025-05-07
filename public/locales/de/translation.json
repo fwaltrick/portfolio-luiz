@@ -4,6 +4,13 @@
     "about": "Über Luiz",
     "contact": "Kontakt"
   },
+  "error": {
+    "title": "Fehler",
+    "loadFailedTitle": "Inhalt konnte nicht geladen werden",
+    "loadFailedMessage": "Beim Versuch, den Inhalt dieser Seite zu laden, ist ein Fehler aufgetreten. Bitte versuchen Sie es später noch einmal.",
+    "retryButton": "Erneut versuchen",
+    "backToHome": "Zurück zur Startseite"
+  },
   "projects": {
     "mova": {
       "title": "Mova-se! Clima e Deslocamentos",

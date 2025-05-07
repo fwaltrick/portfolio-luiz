@@ -4,6 +4,13 @@
     "about": "About Luiz",
     "contact": "Contact"
   },
+  "error": {
+    "title": "Error",
+    "loadFailedTitle": "Failed to Load Content",
+    "loadFailedMessage": "An error occurred while trying to load the content of this page. Please try again later.",
+    "retryButton": "Try Again",
+    "backToHome": "Back to Home"
+  },
   "projects": {
     "mova": {
       "title": "Mova",

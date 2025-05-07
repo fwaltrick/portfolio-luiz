@@ -8,7 +8,7 @@ import useProjects from '../../hooks/useProjects'
 import { client } from '../../../tina/__generated__/client'
 import { TinaMarkdown } from 'tinacms/dist/rich-text'
 import type { TinaMarkdownContent } from 'tinacms/dist/rich-text'
-import ProjectGallery from '../../components/ProjectGallery'
+import ProjectGallery from '../../components/ProjectGallery' // Assumindo que os espaços internos são controlados aqui
 import RelatedProjects from '../../components/RelatedProjects'
 import NotFoundPage from '../NotFound/index'
 import Loader from '../../components/Loader'
@@ -106,7 +106,7 @@ interface TranslatedTextProps {
 // --- Componentes Memoizados ---
 const HeroImage = React.memo(
   ({ src, fallbackSrc, alt }: HeroImageProps) => (
-    <div className="relative w-full h-[100vh] overflow-hidden bg-black">
+    <div className="relative w-full h-[100vh] overflow-hidden">
       <picture>
         <source srcSet={src.replace('.jpg', '.webp')} type="image/webp" />
         <img
@@ -188,13 +188,10 @@ const ProjectDetailPage: React.FC = () => {
   )
 
   // --- Efeitos ---
-
-  // Resetar visibilidade do título ao mudar de projeto (slug)
   useEffect(() => {
     setIsTitleVisible(false)
   }, [slug])
 
-  // Efeito de Body Styling
   useEffect(() => {
     document.body.classList.add('overflow-x-hidden')
     document.body.style.margin = '0'
@@ -208,7 +205,6 @@ const ProjectDetailPage: React.FC = () => {
     }
   }, [])
 
-  // Intersection Observer para a imagem de capa
   useEffect(() => {
     if (!imageRef.current) return
     const observer = new IntersectionObserver(
@@ -221,47 +217,33 @@ const ProjectDetailPage: React.FC = () => {
       { threshold: 0.1, rootMargin: '100px 0px' },
     )
     observer.observe(imageRef.current)
-    return () => observer.disconnect() // Usa disconnect pois só precisa uma vez
+    return () => observer.disconnect()
   }, [])
 
-  // Intersection Observer para o Título
   useEffect(() => {
     const titleElement = titleObserverRef.current
-    // Não faz nada se o elemento não existir ou se já estiver visível (otimização)
     if (!titleElement || isTitleVisible) return
-
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0]
         if (entry.isIntersecting) {
-          // console.log(`[Observer - ${slug}] Title is intersecting!`);
           setIsTitleVisible(true)
-          // Para de observar este elemento específico após se tornar visível
-          // Não usamos disconnect() aqui para caso o observer seja reutilizado internamente pelo React
           observer.unobserve(titleElement)
         }
       },
       {
         root: null,
-        rootMargin: '0px 0px -50px 0px', // Trigger um pouco antes de entrar totalmente
+        rootMargin: '0px 0px -50px 0px',
       },
     )
-
     observer.observe(titleElement)
-
-    // Função de limpeza para este efeito específico
     return () => {
-      // Para de observar o elemento atual quando o efeito for limpo
-      // (seja por unmount ou por mudança nas dependências que causa re-execução)
       if (titleElement) {
         observer.unobserve(titleElement)
       }
     }
-    // Depende de 'project' para re-rodar quando os dados do projeto mudam
-    // E de 'isTitleVisible' para não recriar o observer se já estiver visível
   }, [project, isTitleVisible])
 
-  // Fetch TinaCMS
   const fetchTinaProject =
     useCallback(async (): Promise<TinaProject | null> => {
       if (!slug) return null
@@ -273,13 +255,12 @@ const ProjectDetailPage: React.FC = () => {
           return result.data.project as unknown as TinaProject
         }
         return null
-      } catch (error) {
-        console.error('Error fetching from TinaCMS:', error)
+      } catch (errorFetching) {
+        console.error('Error fetching from TinaCMS:', errorFetching)
         return null
       }
     }, [slug])
 
-  // Efeito de Carregamento de Dados
   useEffect(() => {
     const loadProject = async () => {
       if (!slug) {
@@ -288,16 +269,13 @@ const ProjectDetailPage: React.FC = () => {
         setLoading(false)
         return
       }
-
       setLoading(true)
       setError(null)
       setProject(null)
       setProjectNotFound(false)
-
       try {
         const tinaData = await fetchTinaProject()
         let finalProjectData: Project | null = null
-
         if (tinaData) {
           tinaProjectRef.current = tinaData
           const formattedProject = {
@@ -361,7 +339,6 @@ const ProjectDetailPage: React.FC = () => {
             setProjectNotFound(true)
           }
         }
-
         setProject(finalProjectData)
       } catch (err) {
         console.error('Error loading project:', err)
@@ -372,33 +349,25 @@ const ProjectDetailPage: React.FC = () => {
         setLoading(false)
       }
     }
-
     loadProject()
   }, [slug, fetchTinaProject, projects])
 
-  // Efeito de Mudança de Idioma
   useEffect(() => {
     if (prevLanguageRef.current === i18n.language) {
       return
     }
-
     setIsChangingLanguage(true)
     scrollPositionRef.current = window.scrollY
     prevLanguageRef.current = i18n.language
-
     const restoreScrollTimer = setTimeout(() => {
       window.scrollTo(0, scrollPositionRef.current)
       const transitionEndTimer = setTimeout(() => {
         setIsChangingLanguage(false)
       }, 50)
-
       return () => clearTimeout(transitionEndTimer)
     }, 150)
-
     return () => clearTimeout(restoreScrollTimer)
   }, [i18n.language])
-
-  // ---- Lógica de Renderização ----
 
   const currentDescription = useMemo(() => {
     if (!project) return null
@@ -442,14 +411,14 @@ const ProjectDetailPage: React.FC = () => {
     li: (props: { children: React.ReactNode }) => (
       <li className="mb-1 text-jumbo-800">{props.children}</li>
     ),
-    bold: (props: { children: React.ReactNode }) => (
+    strong: (props: { children: React.ReactNode }) => (
       <strong className="font-sans font-bold mb-4 text-jumbo-900">
         {props.children}
       </strong>
-    ),
-    italic: (props: { children: React.ReactNode }) => (
+    ), // Corrigido de `bold` para `strong` se for um componente customizado para `**texto**`
+    em: (props: { children: React.ReactNode }) => (
       <em className="italic text-jumbo-800">{props.children}</em>
-    ),
+    ), // Corrigido de `italic` para `em`
     code: (props: { children: React.ReactNode }) => (
       <code className="text-xl font-staatliches text-jumbo-600 pr-0.5">
         {props.children}
@@ -470,7 +439,6 @@ const ProjectDetailPage: React.FC = () => {
     ),
   }
 
-  // Render Loading
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -478,15 +446,14 @@ const ProjectDetailPage: React.FC = () => {
       </div>
     )
   }
-
   if (projectNotFound) {
     return <NotFoundPage />
   }
-
-  // Render Error
   if (error) {
     return (
-      <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-8 py-12">
+        {' '}
+        {/* Ajustado padding lateral para consistência */}
         <h2 className="text-xl font-bold text-red-500 mb-4">
           {isGerman ? 'Fehler' : 'Error'}
         </h2>
@@ -500,16 +467,10 @@ const ProjectDetailPage: React.FC = () => {
       </div>
     )
   }
-
-  // Render Not Found
   if (!project) {
-    console.warn(
-      'ProjectDetailPage: Rendering NotFoundPage as fallback because project is null after loading without specific errors.',
-    )
     return <NotFoundPage />
   }
 
-  // Prepare labels
   const labels = {
     for: isGerman ? 'FÜR' : 'FOR',
     at: isGerman ? 'BEI' : 'AT',
@@ -531,7 +492,7 @@ const ProjectDetailPage: React.FC = () => {
 
   // ---- JSX de Retorno Principal ----
   return (
-    <div className="w-full mx-auto p-0 relative max-w-[1440px]">
+    <div className="w-full p-0 relative">
       {/* Overlay de Transição */}
       <div
         className={`fixed top-0 left-0 right-0 bottom-0 bg-black z-[100] pointer-events-none transition-opacity duration-500 ease-out ${
@@ -539,8 +500,8 @@ const ProjectDetailPage: React.FC = () => {
         }`}
       ></div>
 
-      {/* Hero Image */}
-      <div aria-label={heroImageAlt}>
+      {/* Hero Image - Full-width */}
+      <div aria-label={heroImageAlt} ref={imageRef} className="w-full">
         <HeroImage
           src={heroImageSrc}
           fallbackSrc={heroImageFallback}
@@ -548,12 +509,17 @@ const ProjectDetailPage: React.FC = () => {
         />
       </div>
 
-      {/* Detalhes do Projeto */}
-      <div className="w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Coluna Esquerda */}
+      {/* Seção de Detalhes do Projeto - Fundos full-bleed, conteúdo centralizado */}
+      <div className="w-full relative">
+        {/* Fundos Full-Bleed (visíveis em md+) */}
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-jumbo-950 md:block hidden -z-10"></div>
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-jumbo-100 md:block hidden -z-10"></div>
+
+        {/* Layout Mobile: Colunas empilhadas com seus próprios fundos */}
+        <div className="md:hidden">
+          {/* Coluna Preta Mobile */}
           <div className="bg-jumbo-950 text-white">
-            <div className="p-16 md:p-16 sm:p-8">
+            <div className="mx-auto w-full max-w-[1920px] px-6 py-8 sm:px-6 sm:py-12">
               <CategoryChip
                 category={
                   isGerman
@@ -561,8 +527,9 @@ const ProjectDetailPage: React.FC = () => {
                     : project.category_en || project.category
                 }
               />
-              {/* Título com Animação */}
-              <div className="mb-16">
+              <div className="mb-12 sm:mb-16">
+                {' '}
+                {/* Ajustado margin-bottom para mobile */}
                 <motion.div
                   ref={titleObserverRef}
                   initial={{ opacity: 0, x: -40 }}
@@ -573,7 +540,8 @@ const ProjectDetailPage: React.FC = () => {
                   }
                   transition={{ duration: 0.9, ease: 'easeOut' }}
                 >
-                  <h2 className="[text-wrap:balance] text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
+                  {/* MUDANÇA DE FONTE PARA MOBILE */}
+                  <h2 className="[text-wrap:balance] text-4xl sm:text-5xl font-bold leading-tight uppercase font-staatliches tracking-wide">
                     <TranslatedText
                       german={project.title_de || project.title}
                       english={project.title_en || project.title}
@@ -582,12 +550,11 @@ const ProjectDetailPage: React.FC = () => {
                   </h2>
                 </motion.div>
                 {project.title_bra && (
-                  <h3 className="text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
+                  <h3 className="text-2xl sm:text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
                     {project.title_bra}
                   </h3>
                 )}
               </div>
-              {/* Metadata */}
               <div className="mb-8 grid grid-cols-[3rem_1fr] gap-y-4">
                 {project.client && (
                   <>
@@ -635,10 +602,10 @@ const ProjectDetailPage: React.FC = () => {
               )}
             </div>
           </div>
-          {/* Coluna Direita */}
+          {/* Coluna Cinza Mobile */}
           <div className="bg-jumbo-100 text-jumbo-950">
-            <div className="p-16 md:p-24 sm:p-16 pr-24 md:pr-24 sm:pr-16">
-              <div className="max-w-xl">
+            <div className="mx-auto w-full max-w-[1920px] px-4 py-8 sm:px-6 sm:py-12">
+              <div className="max-w-xl mx-auto">
                 <div className="prose prose-sm max-w-none">
                   <ErrorBoundary
                     isGerman={isGerman}
@@ -677,48 +644,189 @@ const ProjectDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Layout Desktop: Conteúdo centralizado sobre os fundos full-bleed */}
+        <div className="hidden md:block mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8 relative z-0">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Coluna Esquerda (Conteúdo do Texto) */}
+            <div className="text-white">
+              {/* MUDANÇA DE PADDING PARA DESKTOP */}
+              <div className="p-16 md:p-20 lg:p-24">
+                <CategoryChip
+                  category={
+                    isGerman
+                      ? project.category_de || project.category
+                      : project.category_en || project.category
+                  }
+                />
+                <div className="mb-16">
+                  <motion.div
+                    ref={titleObserverRef}
+                    initial={{ opacity: 0, x: -40 }}
+                    animate={
+                      isTitleVisible
+                        ? { opacity: 1, x: 0 }
+                        : { opacity: 0, x: -40 }
+                    }
+                    transition={{ duration: 0.9, ease: 'easeOut' }}
+                  >
+                    {/* MUDANÇA DE FONTE PARA DESKTOP (mantém 6xl) */}
+                    <h2 className="[text-wrap:balance] text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
+                      <TranslatedText
+                        german={project.title_de || project.title}
+                        english={project.title_en || project.title}
+                        isChanging={isChangingLanguage}
+                      />
+                    </h2>
+                  </motion.div>
+                  {project.title_bra && (
+                    <h3 className="text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
+                      {project.title_bra}
+                    </h3>
+                  )}
+                </div>
+                <div className="mb-8 grid grid-cols-[3rem_1fr] gap-y-4">
+                  {project.client && (
+                    <>
+                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                        {labels.for}
+                      </div>
+                      <div className="font-inter font-light">
+                        {project.client}
+                      </div>
+                    </>
+                  )}
+                  {project.agency && (
+                    <>
+                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                        {labels.at}
+                      </div>
+                      <div className="font-inter font-light">
+                        {project.agency}
+                      </div>
+                    </>
+                  )}
+                  {project.creativeDirection && (
+                    <>
+                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                        {labels.with}
+                      </div>
+                      <div className="font-inter font-light">
+                        {project.creativeDirection}
+                      </div>
+                    </>
+                  )}
+                  {project.year && (
+                    <>
+                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                        {labels.when}
+                      </div>
+                      <div className="font-inter font-light">
+                        {project.year}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {project.copyright && (
+                  <div className="font-inter font-light text-sm text-jumbo-300">
+                    {project.copyright}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Coluna Direita (Conteúdo do Texto) */}
+            <div className="text-jumbo-950">
+              {/* MUDANÇA DE PADDING PARA DESKTOP */}
+              <div className="p-16 md:p-20 lg:p-24">
+                {' '}
+                {/* Ajustado o pr-* para padding geral */}
+                <div className="max-w-xl mx-auto">
+                  <div className="prose prose-sm max-w-none">
+                    <ErrorBoundary
+                      isGerman={isGerman}
+                      fallback={
+                        <div className="p-4 bg-jumbo-100 border border-jumbo-200 rounded">
+                          <h3 className="text-jumbo-600 font-bold">
+                            {errorMessages.title}
+                          </h3>
+                          <p className="text-jumbo-700">
+                            {errorMessages.message}
+                          </p>
+                        </div>
+                      }
+                    >
+                      {typeof currentDescription === 'string' ? (
+                        <p className="[text-wrap:balance] mb-6 text-base leading-relaxed font-light text-jumbo-950">
+                          {currentDescription}
+                        </p>
+                      ) : currentDescription ? (
+                        <div className="[text-wrap:balance] min-h-[100px]">
+                          <TinaMarkdown
+                            content={currentDescription as TinaMarkdownContent}
+                            components={markdownComponents as any}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-jumbo-500 italic">
+                          {isGerman
+                            ? 'Keine Beschreibung für dieses Projekt verfügbar.'
+                            : 'No description available for this project.'}
+                        </p>
+                      )}
+                    </ErrorBoundary>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Galeria e Projetos Relacionados */}
-      {/* Renderiza somente se 'project' e 'projects' existirem */}
       {project && projects && projects.length > 0 && (
         <div className="w-full">
-          <ErrorBoundary
-            isGerman={isGerman}
-            fallback={
-              <div className="p-8 text-center">
-                <p className="text-red-500">
-                  {isGerman
-                    ? 'Fehler beim Laden der Galerie-Bilder.'
-                    : 'Failed to load gallery images.'}
-                </p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="mt-4 px-4 py-2 bg-jumbo-800 text-white rounded hover:bg-jumbo-700 transition-colors duration-300"
-                >
-                  {errorMessages.reloadButton}
-                </button>
-              </div>
-            }
-          >
-            {/* Renderiza a Galeria apenas se houver itens */}
-            {project.gallery && project.gallery.length > 0 && (
-              <ProjectGallery
-                slug={slug || ''}
-                galleryItems={(project.gallery || []).map((item: any) => ({
-                  ...item,
-                  image: item.image || item.src || '',
-                }))}
-                coverImageConfig={project.coverImageConfig}
-                coverImage={project.coverImage}
-                heroImageAlt={heroImageAlt}
-                isGerman={isGerman}
-                isChangingLanguage={isChangingLanguage}
+          {/* MUDANÇA DE PADDING: Removido padding superior no desktop (pt-0) e mantido padding inferior */}
+          <div className="mx-auto w-full max-w-[1920px] md:pt-0 pb-4 md:pb-8">
+            <ErrorBoundary
+              isGerman={isGerman}
+              gallery-container
+              fallback={
+                <div className="p-8 text-center">
+                  <p className="text-red-500">
+                    {isGerman
+                      ? 'Fehler beim Laden der Galerie-Bilder.'
+                      : 'Failed to load gallery images.'}
+                  </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="mt-4 px-4 py-2 bg-jumbo-800 text-white rounded hover:bg-jumbo-700 transition-colors duration-300"
+                  >
+                    {errorMessages.reloadButton}
+                  </button>
+                </div>
+              }
+            >
+              {project.gallery && project.gallery.length > 0 && (
+                <ProjectGallery
+                  slug={slug || ''}
+                  galleryItems={(project.gallery || []).map((item: any) => ({
+                    ...item,
+                    image: item.image || item.src || '',
+                  }))}
+                  coverImageConfig={project.coverImageConfig}
+                  coverImage={project.coverImage}
+                  heroImageAlt={heroImageAlt}
+                  isGerman={isGerman}
+                  isChangingLanguage={isChangingLanguage}
+                />
+              )}
+              <RelatedProjects
+                currentProject={project}
+                allProjects={projects}
               />
-            )}
-            {/* Renderiza Projetos Relacionados */}
-            <RelatedProjects currentProject={project} allProjects={projects} />
-          </ErrorBoundary>
+            </ErrorBoundary>
+          </div>
         </div>
       )}
     </div>

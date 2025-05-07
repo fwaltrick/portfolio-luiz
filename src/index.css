@@ -63,7 +63,7 @@ button,
 }
 
 @utility container-custom {
-  @apply max-w-[1440px] mx-auto w-full px-8 md:px-16 lg:px-16;
+  @apply max-w-[1920px] mx-auto w-full px-8 md:px-16 lg:px-16;
 }
 
 @utility btn {

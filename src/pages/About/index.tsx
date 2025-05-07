@@ -53,7 +53,7 @@ const markdownComponents = {
 
 // --- Componente Principal AboutPage ---
 const AboutPage: React.FC = () => {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const isGerman = i18n.language.startsWith('de')
 
   const [initialData, setInitialData] = useState<FullPageQueryResponse | null>(
@@ -128,14 +128,15 @@ const AboutPage: React.FC = () => {
     return renderWrapper(
       <div className="flex flex-col flex-grow items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <h1 className="text-4xl md:text-8xl font-staatliches font-bold text-red-400 mb-4">
-          Erro
+          {t('error.title')} {/* Nova chave para o título "Erro" */}
         </h1>
         <h2 className="text-4xl md:text-4xl font-staatliches font-semibold text-jumbo-800 mb-6">
-          Falha ao Carregar Conteúdo
+          {t('error.loadFailedTitle')}{' '}
+          {/* Nova chave para "Falha ao Carregar Conteúdo" */}
         </h2>
         <p className="text-balance text-lg text-jumbo-600 mb-8 max-w-md">
-          Ocorreu um erro ao tentar carregar o conteúdo desta página. Por favor,
-          tente novamente mais tarde.
+          {t('error.loadFailedMessage')}{' '}
+          {/* Nova chave para a mensagem de erro */}
           {/* Você pode optar por exibir o erro detalhado aqui, mas cuidado com informações sensíveis em produção */}
           {/* <br /> */}
           {/* <span className="text-red-600 font-medium">{error}</span> */}
@@ -144,14 +145,14 @@ const AboutPage: React.FC = () => {
           onClick={() => window.location.reload()}
           className="inline-block bg-jumbo-950 text-white px-6 py-3 rounded-md hover:bg-jumbo-700 transition-colors duration-300 text-lg font-medium"
         >
-          Tentar Novamente
+          {t('error.retryButton')} {/* Nova chave para "Tentar Novamente" */}
         </button>
         {/* Opcional: Adicionar um link de volta à página inicial */}
         <Link
           to="/"
           className="mt-4 inline-block text-jumbo-500 hover:underline"
         >
-          Voltar ao Início
+          {t('error.backToHome')} {/* Nova chave para "Voltar ao Início" */}
         </Link>
         */
       </div>,

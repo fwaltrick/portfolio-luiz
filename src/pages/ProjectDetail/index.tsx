@@ -2,13 +2,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion' // Importado
 import { Project } from '../../types'
 import useProjects from '../../hooks/useProjects'
 import { client } from '../../../tina/__generated__/client'
 import { TinaMarkdown } from 'tinacms/dist/rich-text'
 import type { TinaMarkdownContent } from 'tinacms/dist/rich-text'
-import ProjectGallery from '../../components/ProjectGallery' // Assumindo que os espaços internos são controlados aqui
+import ProjectGallery from '../../components/ProjectGallery'
 import RelatedProjects from '../../components/RelatedProjects'
 import NotFoundPage from '../NotFound/index'
 import Loader from '../../components/Loader'
@@ -164,17 +164,17 @@ const ProjectDetailPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [projectNotFound, setProjectNotFound] = useState<boolean>(false)
-  const [, setImageVisible] = useState<boolean>(false)
+  const [, setImageVisible] = useState<boolean>(false) // Deixado, caso precise para lógica futura de lazy loading
   const [transitionComplete, setTransitionComplete] = useState<boolean>(false)
   const [isChangingLanguage, setIsChangingLanguage] = useState<boolean>(false)
-  const [isTitleVisible, setIsTitleVisible] = useState<boolean>(false)
+  // const [isTitleVisible, setIsTitleVisible] = useState<boolean>(false) // REMOVIDO - Não mais necessário com whileInView
 
   // Refs
   const imageRef = useRef<HTMLDivElement | null>(null)
   const tinaProjectRef = useRef<TinaProject | null>(null)
   const scrollPositionRef = useRef<number>(0)
   const prevLanguageRef = useRef<string>(i18n.language)
-  const titleObserverRef = useRef<HTMLDivElement | null>(null)
+  // const titleObserverRef = useRef<HTMLDivElement | null>(null) // REMOVIDO - Não mais necessário com whileInView
 
   // URLs de Imagem Memoizadas
   const heroImageSrc = useMemo(
@@ -188,9 +188,9 @@ const ProjectDetailPage: React.FC = () => {
   )
 
   // --- Efeitos ---
-  useEffect(() => {
-    setIsTitleVisible(false)
-  }, [slug])
+  // useEffect(() => { // REMOVIDO - Não precisa mais resetar isTitleVisible
+  //   setIsTitleVisible(false)
+  // }, [slug])
 
   useEffect(() => {
     document.body.classList.add('overflow-x-hidden')
@@ -210,7 +210,7 @@ const ProjectDetailPage: React.FC = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setImageVisible(true)
+          setImageVisible(true) // Pode manter se usar para algo além da animação do título
           observer.disconnect()
         }
       },
@@ -220,29 +220,11 @@ const ProjectDetailPage: React.FC = () => {
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    const titleElement = titleObserverRef.current
-    if (!titleElement || isTitleVisible) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        if (entry.isIntersecting) {
-          setIsTitleVisible(true)
-          observer.unobserve(titleElement)
-        }
-      },
-      {
-        root: null,
-        rootMargin: '0px 0px -50px 0px',
-      },
-    )
-    observer.observe(titleElement)
-    return () => {
-      if (titleElement) {
-        observer.unobserve(titleElement)
-      }
-    }
-  }, [project, isTitleVisible])
+  // REMOVIDO - useEffect para o IntersectionObserver do título
+  // useEffect(() => {
+  //   const titleElement = titleObserverRef.current
+  //   // ... lógica do observer ...
+  // }, [project, isTitleVisible])
 
   const fetchTinaProject =
     useCallback(async (): Promise<TinaProject | null> => {
@@ -386,7 +368,7 @@ const ProjectDetailPage: React.FC = () => {
       </h2>
     ),
     p: (props: { children: React.ReactNode }) => (
-      <p className="mb-4 text-base leading-relaxed font-light text-jumbo-950">
+      <p className="mb-4 text-sm sm:text-base leading-relaxed font-light text-jumbo-950">
         {props.children}
       </p>
     ),
@@ -401,31 +383,35 @@ const ProjectDetailPage: React.FC = () => {
       </a>
     ),
     ul: (props: { children: React.ReactNode }) => (
-      <ul className="mb-4 ml-5 list-disc text-jumbo-800">{props.children}</ul>
+      <ul className="mb-4 ml-5 list-disc text-jumbo-800 text-sm sm:text-base">
+        {props.children}
+      </ul>
     ),
     ol: (props: { children: React.ReactNode }) => (
-      <ol className="mb-4 ml-5 list-decimal text-jumbo-800">
+      <ol className="mb-4 ml-5 list-decimal text-jumbo-800 text-sm sm:text-base">
         {props.children}
       </ol>
     ),
     li: (props: { children: React.ReactNode }) => (
-      <li className="mb-1 text-jumbo-800">{props.children}</li>
+      <li className="mb-1 text-jumbo-800 text-sm sm:text-base">
+        {props.children}
+      </li>
     ),
     strong: (props: { children: React.ReactNode }) => (
       <strong className="font-sans font-bold mb-4 text-jumbo-900">
         {props.children}
       </strong>
-    ), // Corrigido de `bold` para `strong` se for um componente customizado para `**texto**`
+    ),
     em: (props: { children: React.ReactNode }) => (
       <em className="italic text-jumbo-800">{props.children}</em>
-    ), // Corrigido de `italic` para `em`
+    ),
     code: (props: { children: React.ReactNode }) => (
       <code className="text-xl font-staatliches text-jumbo-600 pr-0.5">
         {props.children}
       </code>
     ),
     blockquote: (props: { children: React.ReactNode }) => (
-      <blockquote className="border-l-4 border-jumbo-300 pl-4 italic my-4 text-jumbo-600">
+      <blockquote className="border-l-4 border-jumbo-300 pl-4 italic my-4 text-jumbo-600 text-sm sm:text-base">
         {props.children}
       </blockquote>
     ),
@@ -452,8 +438,6 @@ const ProjectDetailPage: React.FC = () => {
   if (error) {
     return (
       <div className="container mx-auto max-w-7xl px-4 sm:px-8 py-12">
-        {' '}
-        {/* Ajustado padding lateral para consistência */}
         <h2 className="text-xl font-bold text-red-500 mb-4">
           {isGerman ? 'Fehler' : 'Error'}
         </h2>
@@ -493,14 +477,12 @@ const ProjectDetailPage: React.FC = () => {
   // ---- JSX de Retorno Principal ----
   return (
     <div className="w-full p-0 relative">
-      {/* Overlay de Transição */}
       <div
         className={`fixed top-0 left-0 right-0 bottom-0 bg-black z-[100] pointer-events-none transition-opacity duration-500 ease-out ${
           transitionComplete ? 'opacity-0' : 'opacity-100'
         }`}
       ></div>
 
-      {/* Hero Image - Full-width */}
       <div aria-label={heroImageAlt} ref={imageRef} className="w-full">
         <HeroImage
           src={heroImageSrc}
@@ -509,149 +491,16 @@ const ProjectDetailPage: React.FC = () => {
         />
       </div>
 
-      {/* Seção de Detalhes do Projeto - Fundos full-bleed, conteúdo centralizado */}
       <div className="w-full relative">
-        {/* Fundos Full-Bleed (visíveis em md+) */}
         <div className="absolute top-0 left-0 w-1/2 h-full bg-jumbo-950 md:block hidden -z-10"></div>
         <div className="absolute top-0 right-0 w-1/2 h-full bg-jumbo-100 md:block hidden -z-10"></div>
 
-        {/* Layout Mobile: Colunas empilhadas com seus próprios fundos */}
-        <div className="md:hidden">
-          {/* Coluna Preta Mobile */}
-          <div className="bg-jumbo-950 text-white">
-            <div className="mx-auto w-full max-w-[1920px] px-6 py-8 sm:px-6 sm:py-12">
-              <CategoryChip
-                category={
-                  isGerman
-                    ? project.category_de || project.category
-                    : project.category_en || project.category
-                }
-              />
-              <div className="mb-12 sm:mb-16">
-                {' '}
-                {/* Ajustado margin-bottom para mobile */}
-                <motion.div
-                  ref={titleObserverRef}
-                  initial={{ opacity: 0, x: -40 }}
-                  animate={
-                    isTitleVisible
-                      ? { opacity: 1, x: 0 }
-                      : { opacity: 0, x: -40 }
-                  }
-                  transition={{ duration: 0.9, ease: 'easeOut' }}
-                >
-                  {/* MUDANÇA DE FONTE PARA MOBILE */}
-                  <h2 className="[text-wrap:balance] text-4xl sm:text-5xl font-bold leading-tight uppercase font-staatliches tracking-wide">
-                    <TranslatedText
-                      german={project.title_de || project.title}
-                      english={project.title_en || project.title}
-                      isChanging={isChangingLanguage}
-                    />
-                  </h2>
-                </motion.div>
-                {project.title_bra && (
-                  <h3 className="text-2xl sm:text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
-                    {project.title_bra}
-                  </h3>
-                )}
-              </div>
-              <div className="mb-8 grid grid-cols-[3rem_1fr] gap-y-4">
-                {project.client && (
-                  <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
-                      {labels.for}
-                    </div>
-                    <div className="font-inter font-light">
-                      {project.client}
-                    </div>
-                  </>
-                )}
-                {project.agency && (
-                  <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
-                      {labels.at}
-                    </div>
-                    <div className="font-inter font-light">
-                      {project.agency}
-                    </div>
-                  </>
-                )}
-                {project.creativeDirection && (
-                  <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
-                      {labels.with}
-                    </div>
-                    <div className="font-inter font-light">
-                      {project.creativeDirection}
-                    </div>
-                  </>
-                )}
-                {project.year && (
-                  <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
-                      {labels.when}
-                    </div>
-                    <div className="font-inter font-light">{project.year}</div>
-                  </>
-                )}
-              </div>
-              {project.copyright && (
-                <div className="font-inter font-light text-sm text-jumbo-300">
-                  {project.copyright}
-                </div>
-              )}
-            </div>
-          </div>
-          {/* Coluna Cinza Mobile */}
-          <div className="bg-jumbo-100 text-jumbo-950">
-            <div className="mx-auto w-full max-w-[1920px] px-4 py-8 sm:px-6 sm:py-12">
-              <div className="max-w-xl mx-auto">
-                <div className="prose prose-sm max-w-none">
-                  <ErrorBoundary
-                    isGerman={isGerman}
-                    fallback={
-                      <div className="p-4 bg-jumbo-100 border border-jumbo-200 rounded">
-                        <h3 className="text-jumbo-600 font-bold">
-                          {errorMessages.title}
-                        </h3>
-                        <p className="text-jumbo-700">
-                          {errorMessages.message}
-                        </p>
-                      </div>
-                    }
-                  >
-                    {typeof currentDescription === 'string' ? (
-                      <p className="[text-wrap:balance] mb-6 text-base leading-relaxed font-light text-jumbo-950">
-                        {currentDescription}
-                      </p>
-                    ) : currentDescription ? (
-                      <div className="[text-wrap:balance] min-h-[100px]">
-                        <TinaMarkdown
-                          content={currentDescription as TinaMarkdownContent}
-                          components={markdownComponents as any}
-                        />
-                      </div>
-                    ) : (
-                      <p className="text-jumbo-500 italic">
-                        {isGerman
-                          ? 'Keine Beschreibung für dieses Projekt verfügbar.'
-                          : 'No description available for this project.'}
-                      </p>
-                    )}
-                  </ErrorBoundary>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Layout Desktop: Conteúdo centralizado sobre os fundos full-bleed */}
-        <div className="hidden md:block mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8 relative z-0">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8 relative z-0">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {/* Coluna Esquerda (Conteúdo do Texto) */}
-            <div className="text-white">
-              {/* MUDANÇA DE PADDING PARA DESKTOP */}
-              <div className="p-16 md:p-20 lg:p-24">
+            <div className="text-white bg-jumbo-950 md:bg-transparent">
+              <div className="py-8 px-0 sm:py-12 md:p-16 lg:p-20 xl:p-24">
+                {' '}
+                {/* Padding responsivo */}
                 <CategoryChip
                   category={
                     isGerman
@@ -659,19 +508,16 @@ const ProjectDetailPage: React.FC = () => {
                       : project.category_en || project.category
                   }
                 />
-                <div className="mb-16">
+                <div className="mb-12 md:mb-16">
+                  {/* MUDANÇA TÍTULO: Usando whileInView */}
                   <motion.div
-                    ref={titleObserverRef}
+                    // ref removido
                     initial={{ opacity: 0, x: -40 }}
-                    animate={
-                      isTitleVisible
-                        ? { opacity: 1, x: 0 }
-                        : { opacity: 0, x: -40 }
-                    }
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.1 }} // Configuração do trigger
                     transition={{ duration: 0.9, ease: 'easeOut' }}
                   >
-                    {/* MUDANÇA DE FONTE PARA DESKTOP (mantém 6xl) */}
-                    <h2 className="[text-wrap:balance] text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
+                    <h2 className="[text-wrap:balance] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
                       <TranslatedText
                         german={project.title_de || project.title}
                         english={project.title_en || project.title}
@@ -680,69 +526,69 @@ const ProjectDetailPage: React.FC = () => {
                     </h2>
                   </motion.div>
                   {project.title_bra && (
-                    <h3 className="text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
+                    <h3 className="text-2xl sm:text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
                       {project.title_bra}
                     </h3>
                   )}
                 </div>
-                <div className="mb-8 grid grid-cols-[3rem_1fr] gap-y-4">
+                <div className="mb-8 grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 sm:gap-y-4">
                   {project.client && (
                     <>
-                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                      <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                         {labels.for}
                       </div>
-                      <div className="font-inter font-light">
+                      <div className="text-sm sm:text-base font-inter font-light">
                         {project.client}
                       </div>
                     </>
                   )}
                   {project.agency && (
                     <>
-                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                      <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                         {labels.at}
                       </div>
-                      <div className="font-inter font-light">
+                      <div className="text-sm sm:text-base font-inter font-light">
                         {project.agency}
                       </div>
                     </>
                   )}
                   {project.creativeDirection && (
                     <>
-                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                      <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                         {labels.with}
                       </div>
-                      <div className="font-inter font-light">
+                      <div className="text-sm sm:text-base font-inter font-light">
                         {project.creativeDirection}
                       </div>
                     </>
                   )}
                   {project.year && (
                     <>
-                      <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                      <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                         {labels.when}
                       </div>
-                      <div className="font-inter font-light">
+                      <div className="text-sm sm:text-base font-inter font-light">
                         {project.year}
                       </div>
                     </>
                   )}
                 </div>
                 {project.copyright && (
-                  <div className="font-inter font-light text-sm text-jumbo-300">
+                  <div className="text-xs sm:text-sm font-inter font-light text-jumbo-300">
                     {project.copyright}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Coluna Direita (Conteúdo do Texto) */}
-            <div className="text-jumbo-950">
-              {/* MUDANÇA DE PADDING PARA DESKTOP */}
-              <div className="p-16 md:p-20 lg:p-24">
+            <div className="text-jumbo-950 bg-jumbo-100 md:bg-transparent">
+              <div className="py-8 px-0 sm:py-12 md:p-16 lg:p-20 xl:p-24">
                 {' '}
-                {/* Ajustado o pr-* para padding geral */}
+                {/* Padding responsivo */}
                 <div className="max-w-xl mx-auto">
-                  <div className="prose prose-sm max-w-none">
+                  <div className="prose prose-sm sm:prose-base max-w-none">
+                    {' '}
+                    {/* Prose responsivo */}
                     <ErrorBoundary
                       isGerman={isGerman}
                       fallback={
@@ -757,7 +603,7 @@ const ProjectDetailPage: React.FC = () => {
                       }
                     >
                       {typeof currentDescription === 'string' ? (
-                        <p className="[text-wrap:balance] mb-6 text-base leading-relaxed font-light text-jumbo-950">
+                        <p className="[text-wrap:balance] mb-6 text-sm sm:text-base leading-relaxed font-light text-jumbo-950">
                           {currentDescription}
                         </p>
                       ) : currentDescription ? (
@@ -768,7 +614,7 @@ const ProjectDetailPage: React.FC = () => {
                           />
                         </div>
                       ) : (
-                        <p className="text-jumbo-500 italic">
+                        <p className="text-jumbo-500 italic text-sm sm:text-base">
                           {isGerman
                             ? 'Keine Beschreibung für dieses Projekt verfügbar.'
                             : 'No description available for this project.'}
@@ -783,14 +629,14 @@ const ProjectDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Galeria e Projetos Relacionados */}
       {project && projects && projects.length > 0 && (
         <div className="w-full">
-          {/* MUDANÇA DE PADDING: Removido padding superior no desktop (pt-0) e mantido padding inferior */}
-          <div className="mx-auto w-full max-w-[1920px] md:pt-0 pb-4 md:pb-8">
+          {/* Container da Galeria: sem padding lateral, padding vertical responsivo, sem padding superior no desktop */}
+          <div className="mx-auto w-full max-w-[1920px] px-0 pt-12 md:pt-0 pb-16 md:pb-24">
+            {' '}
+            {/* px-0 AQUI! */}
             <ErrorBoundary
               isGerman={isGerman}
-              gallery-container
               fallback={
                 <div className="p-8 text-center">
                   <p className="text-red-500">
@@ -807,6 +653,7 @@ const ProjectDetailPage: React.FC = () => {
                 </div>
               }
             >
+              {/* O ProjectGallery precisa ser ajustado INTERNAMENTE para remover espaços entre imagens */}
               {project.gallery && project.gallery.length > 0 && (
                 <ProjectGallery
                   slug={slug || ''}
@@ -821,6 +668,7 @@ const ProjectDetailPage: React.FC = () => {
                   isChangingLanguage={isChangingLanguage}
                 />
               )}
+              {/* O RelatedProjects PRECISA ter seu próprio padding lateral interno agora */}
               <RelatedProjects
                 currentProject={project}
                 allProjects={projects}

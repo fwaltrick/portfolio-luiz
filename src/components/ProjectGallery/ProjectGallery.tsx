@@ -1,3 +1,5 @@
+// Copiado EXATAMENTE do seu último fornecimento, com adições/modificações marcadas
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useMediaQuery } from 'react-responsive'
@@ -17,7 +19,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
   heroImageAlt,
   isGerman,
 }) => {
-  // State
+  // State (Mantido como no seu código)
   const [loadErrors, setLoadErrors] = useState<Record<number, boolean>>({})
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({})
   const [debugMode, setDebugMode] = useState<boolean>(
@@ -26,7 +28,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
-  // Media Queries & Calculated Values
+  // Media Queries & Calculated Values (Mantido como no seu código)
   const isMobile = useMediaQuery({ maxWidth: 767 })
   const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1023 })
   const optimalSize = useMemo(() => {
@@ -40,7 +42,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
     [webpSupported],
   )
 
-  // Debug Effect
+  // Debug Effect (Mantido como no seu código)
   useEffect(() => {
     if (debugMode) {
       console.log('ProjectGallery rendered with:', {
@@ -66,7 +68,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
     isTablet,
   ])
 
-  // Helper Functions
+  // Helper Functions (Mantido como no seu código)
   const assignPositions = (items: GalleryItem[]): GalleryItem[] => {
     if (!items || !Array.isArray(items)) return []
     const positionMap = new Map<number, boolean>()
@@ -136,7 +138,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
       (a, b) => (a.position || 999) - (b.position || 999),
     )
     return sortedItems
-  }, [galleryItems, coverImageConfig, coverImage, isMobile]) // debugMode re-runs filter if toggled
+  }, [galleryItems, coverImageConfig, coverImage, isMobile]) // Dependência debugMode removida se não afeta o filtro/sort
 
   const handleImageLoaded = useCallback((index: number) => {
     setLoadedImages((prev) => ({ ...prev, [index]: true }))
@@ -169,6 +171,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
     )} 1400w`
   }
 
+  // lightboxSlides (Mantido como no seu código, com a correção para hero)
   const lightboxSlides = useMemo(() => {
     return processedGalleryItems.map((item, index) => {
       let imageNameForPath = 'default-name-error'
@@ -177,7 +180,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
       try {
         if (item.isCoverImage) {
           imageNameForPath = 'hero'
-          sizeSuffix = undefined // Request base hero image (hero.webp / hero.jpg)
+          sizeSuffix = undefined // Pede a versão base/maior do hero
           finalLargePath = getImagePath(
             slug,
             imageNameForPath,
@@ -185,7 +188,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
             imageFormat,
           )
         } else {
-          sizeSuffix = 'lg' // Request lg for normal gallery images
+          sizeSuffix = 'lg' // Pede lg para galeria normal
           if (item.originalIndex !== undefined) {
             imageNameForPath = `gallery-${String(item.originalIndex).padStart(
               2,
@@ -217,8 +220,9 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
         return { src: '/images/placeholder-error.jpg' }
       }
     })
-  }, [processedGalleryItems, slug, imageFormat]) // Added getImagePath dependency
+  }, [processedGalleryItems, slug, imageFormat, getImagePath]) // Adicionado getImagePath
 
+  // Mensagem se não houver itens (Mantido)
   if (!processedGalleryItems || processedGalleryItems.length === 0) {
     return (
       <div className="project-gallery empty-gallery px-4 sm:px-6 lg:px-8 py-10">
@@ -231,17 +235,53 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
     )
   }
 
+  // ---- JSX de Retorno ----
   return (
     <div className="project-gallery w-full">
       {debugMode && (
         <div className="debug-panel bg-yellow-100 border border-yellow-300 p-4 my-4 rounded">
-          {' '}
-          {/* Debug Content */}{' '}
+          <h3 className="font-bold text-lg mb-2">Gallery Debug Info</h3>
+          <p>Slug: {slug}</p>
+          <p>Original Items: {galleryItems?.length || 0}</p>
+          <p>Processed Items: {processedGalleryItems.length}</p>
+          <p>isMobile: {isMobile ? 'Yes' : 'No'}</p>
+          <p>Optimal Size: {optimalSize}</p>
+          <p>Format: {imageFormat}</p>
+          <p>WebP Supported: {webpSupported ? 'Yes' : 'No'}</p>
+          <p>Load Errors: {Object.keys(loadErrors).length}</p>
+          <p>
+            Loaded Images: {Object.keys(loadedImages).length}/
+            {processedGalleryItems.length}
+          </p>
+          <details className="mt-2">
+            <summary className="cursor-pointer">
+              Items Details (Processed & Filtered)
+            </summary>
+            <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto max-h-60">
+              {JSON.stringify(
+                processedGalleryItems.map((i) => ({
+                  pos: i.position,
+                  img: i.image,
+                  mobile: i.mobileOnly,
+                  desktop: i.desktopOnly,
+                })),
+                null,
+                2,
+              )}
+            </pre>
+          </details>
+          <button
+            onClick={() => setDebugMode(false)}
+            className="mt-2 text-sm text-blue-600 underline"
+          >
+            Close Debug
+          </button>
         </div>
       )}
 
       <div className="gallery-container mb-0">
         {processedGalleryItems.map((item: GalleryItem, index: number) => {
+          // Lógica interna do map mantida como no seu código
           const isCoverImage = Boolean(item.isCoverImage)
           let imageName = 'default-map'
           if (isCoverImage) {
@@ -265,12 +305,18 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
           }
           const caption = isGerman ? item.caption_de : item.caption_en
           const imageLoaded = loadedImages[index]
-
           let aspectRatioClass = 'aspect-video'
           if (item.orientation === 'portrait') {
             aspectRatioClass = 'aspect-[3/4]'
           } else if (item.orientation === 'square') {
             aspectRatioClass = 'aspect-square'
+          }
+
+          // Função helper para abrir o lightbox
+          const openLightbox = (idx: number) => {
+            console.log(`Opening lightbox for index: ${idx}`) // Log para depuração
+            setLightboxIndex(idx)
+            setIsLightboxOpen(true)
           }
 
           return (
@@ -287,9 +333,16 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
                 ease: [0.22, 1, 0.36, 1],
                 delay: Math.min(index * 0.1, 0.5),
               }}
+              // >>> MUDANÇA: Adicionado onTouchEnd <<<
               onClick={() => {
-                setLightboxIndex(index)
-                setIsLightboxOpen(true)
+                console.log(`Click event on index ${index}`)
+                openLightbox(index)
+              }}
+              onTouchEnd={() => {
+                // Para evitar possível disparo duplo com onClick em alguns mobiles
+                // e.preventDefault(); // Descomente CUIDADOSAMENTE se necessário
+                console.log(`TouchEnd event on index ${index}`)
+                openLightbox(index)
               }}
             >
               <div
@@ -373,6 +426,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
         })}
       </div>
 
+      {/* Renderização Lightbox (mantida) */}
       <Lightbox
         open={isLightboxOpen}
         close={() => setIsLightboxOpen(false)}
@@ -381,6 +435,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
         // plugins={[Thumbnails]}
       />
 
+      {/* Debug toggle button (mantido) */}
       {process.env.NODE_ENV === 'development' && (
         <div className="debug-toggle">
           <button

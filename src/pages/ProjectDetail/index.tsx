@@ -497,12 +497,8 @@ const ProjectDetailPage: React.FC = () => {
     reloadButton: isGerman ? 'Seite neu laden' : 'Reload Page',
   }
 
-  // ---- JSX de Retorno Principal ----
   return (
-    // Mantendo a estrutura original com max-w-[1440px] por enquanto, já que as outras estavam dando erro.
-    // Apenas a animação do título será alterada aqui.
     <div className="w-full mx-auto p-0 relative max-w-[1440px]">
-      {/* Overlay de Transição */}
       <div
         className={`fixed top-0 left-0 right-0 bottom-0 bg-black z-[100] pointer-events-none transition-opacity duration-500 ease-out ${
           transitionComplete ? 'opacity-0' : 'opacity-100'
@@ -512,7 +508,6 @@ const ProjectDetailPage: React.FC = () => {
       {/* Hero Image */}
       <div aria-label={heroImageAlt} ref={imageRef}>
         {' '}
-        {/* Adicionado ref aqui */}
         <HeroImage
           src={heroImageSrc}
           fallbackSrc={heroImageFallback}
@@ -536,7 +531,7 @@ const ProjectDetailPage: React.FC = () => {
                 }
               />
               {/* Título com Animação */}
-              <div className="mb-16">
+              <div className="mb-8 md:mb-16">
                 {/* >>> MODIFICAÇÃO 6: Usando whileInView <<< */}
                 <motion.div
                   // ref={titleObserverRef} // Removido
@@ -546,8 +541,7 @@ const ProjectDetailPage: React.FC = () => {
                   viewport={{ once: true, amount: 0.1 }} // Adicionado (Trigger quando 10% visível, apenas uma vez)
                   transition={{ duration: 0.9, ease: 'easeOut' }}
                 >
-                  {/* Mantido seu h2 original, apenas a animação mudou */}
-                  <h2 className="[text-wrap:balance] text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
+                  <h2 className="[text-wrap:balance] text-3xl md:text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
                     <TranslatedText
                       german={project.title_de || project.title}
                       english={project.title_en || project.title}

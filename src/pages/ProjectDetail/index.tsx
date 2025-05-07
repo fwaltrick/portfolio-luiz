@@ -541,7 +541,7 @@ const ProjectDetailPage: React.FC = () => {
                   viewport={{ once: true, amount: 0.1 }} // Adicionado (Trigger quando 10% visível, apenas uma vez)
                   transition={{ duration: 0.9, ease: 'easeOut' }}
                 >
-                  <h2 className="[text-wrap:balance] text-3xl md:text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
+                  <h2 className="[text-wrap:balance] text-4xl md:text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
                     <TranslatedText
                       german={project.title_de || project.title}
                       english={project.title_en || project.title}

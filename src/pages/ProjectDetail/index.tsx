@@ -605,7 +605,7 @@ const ProjectDetailPage: React.FC = () => {
           </div>
           {/* Coluna Direita */}
           <div className="bg-jumbo-100 text-jumbo-950">
-            <div className="p-8 md:p-24 sm:p-16 pr-24 md:pr-24 sm:pr-16">
+            <div className="p-8 md:p-24 sm:p-16">
               <div className="max-w-xl">
                 <div className="prose prose-sm max-w-none">
                   <ErrorBoundary

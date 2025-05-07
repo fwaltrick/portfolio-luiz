@@ -26,13 +26,11 @@ body {
   height: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch; /* Para suporte melhor em iOS */
-  overscroll-behavior: none; /* Previne o bounce em navegadores modernos */
   background-color: var(--color-jumbo-50);
 }
 
 /* Especificamente para páginas de detalhes de projeto */
 body.project-detail-page {
-  overflow-x: hidden;
   margin: 0;
   padding: 0;
   min-height: 100vh;

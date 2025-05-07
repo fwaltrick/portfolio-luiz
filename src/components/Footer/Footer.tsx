@@ -13,8 +13,8 @@ const Footer: React.FC = () => {
     : 'py-4 border-t border-jumbo-200'
 
   const logoClasses = isProjectDetailPage
-    ? 'text-xl tracking-(0.015em) font-[Staatliches] text-white'
-    : 'text-xl tracking-(0.015em) font-[Staatliches] '
+    ? 'text-l md:text-xl tracking-(0.015em) font-[Staatliches] text-white'
+    : 'text-l md:text-xl tracking-(0.015em) font-[Staatliches] '
 
   const linkClasses = isProjectDetailPage
     ? 'text-sm text-jumbo-300 hover:text-white hover:underline transition-colors duration-300'

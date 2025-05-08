@@ -220,7 +220,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
         return { src: '/images/placeholder-error.jpg' }
       }
     })
-  }, [processedGalleryItems, slug, imageFormat, getImagePath]) // Adicionado getImagePath
+  }, [processedGalleryItems, slug, imageFormat]) // Adicionado getImagePath
 
   // Mensagem se não houver itens (Mantido)
   if (!processedGalleryItems || processedGalleryItems.length === 0) {

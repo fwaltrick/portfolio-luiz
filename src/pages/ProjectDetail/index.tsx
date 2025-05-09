@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-// >>> MODIFICAÇÃO 1: Importar motion corretamente
 import { motion } from 'framer-motion'
 import { Project } from '../../types'
 import useProjects from '../../hooks/useProjects'
@@ -168,16 +167,13 @@ const ProjectDetailPage: React.FC = () => {
   const [, setImageVisible] = useState<boolean>(false)
   const [transitionComplete, setTransitionComplete] = useState<boolean>(false)
   const [isChangingLanguage, setIsChangingLanguage] = useState<boolean>(false)
-  // >>> MODIFICAÇÃO 2: Remover state isTitleVisible
-  // const [isTitleVisible, setIsTitleVisible] = useState<boolean>(false)
+  // isTitleVisible e titleObserverRef removidos para usar whileInView
 
   // Refs
   const imageRef = useRef<HTMLDivElement | null>(null)
   const tinaProjectRef = useRef<TinaProject | null>(null)
   const scrollPositionRef = useRef<number>(0)
   const prevLanguageRef = useRef<string>(i18n.language)
-  // >>> MODIFICAÇÃO 3: Remover ref titleObserverRef
-  // const titleObserverRef = useRef<HTMLDivElement | null>(null)
 
   // URLs de Imagem Memoizadas
   const heroImageSrc = useMemo(
@@ -191,12 +187,6 @@ const ProjectDetailPage: React.FC = () => {
   )
 
   // --- Efeitos ---
-
-  // >>> MODIFICAÇÃO 4: Remover useEffect que resetava isTitleVisible
-  // useEffect(() => {
-  //   setIsTitleVisible(false)
-  // }, [slug])
-
   useEffect(() => {
     document.body.classList.add('overflow-x-hidden')
     document.body.style.margin = '0'
@@ -225,14 +215,6 @@ const ProjectDetailPage: React.FC = () => {
     return () => observer.disconnect()
   }, [])
 
-  // >>> MODIFICAÇÃO 5: Remover useEffect do IntersectionObserver do título
-  // useEffect(() => {
-  //   const titleElement = titleObserverRef.current
-  //   if (!titleElement || isTitleVisible) return
-  //   // ... (restante da lógica do observer) ...
-  // }, [project, isTitleVisible])
-
-  // Fetch TinaCMS
   const fetchTinaProject =
     useCallback(async (): Promise<TinaProject | null> => {
       if (!slug) return null
@@ -245,13 +227,11 @@ const ProjectDetailPage: React.FC = () => {
         }
         return null
       } catch (errorFetching) {
-        // Renomeado para não conflitar
         console.error('Error fetching from TinaCMS:', errorFetching)
         return null
       }
     }, [slug])
 
-  // Efeito de Carregamento de Dados
   useEffect(() => {
     const loadProject = async () => {
       if (!slug) {
@@ -269,7 +249,6 @@ const ProjectDetailPage: React.FC = () => {
         let finalProjectData: Project | null = null
         if (tinaData) {
           tinaProjectRef.current = tinaData
-          // Lógica de formatação do projeto (mantida na íntegra)
           const formattedProject = {
             id: tinaData._sys.filename,
             slug: tinaData.slug,
@@ -344,7 +323,6 @@ const ProjectDetailPage: React.FC = () => {
     loadProject()
   }, [slug, fetchTinaProject, projects])
 
-  // Efeito de Mudança de Idioma
   useEffect(() => {
     if (prevLanguageRef.current === i18n.language) {
       return
@@ -362,13 +340,11 @@ const ProjectDetailPage: React.FC = () => {
     return () => clearTimeout(restoreScrollTimer)
   }, [i18n.language])
 
-  // ---- Lógica de Renderização ----
   const currentDescription = useMemo(() => {
     if (!project) return null
     return isGerman ? project.description_de : project.description_en
   }, [project, isGerman])
 
-  // Objeto markdownComponents (mantido na íntegra)
   const markdownComponents = {
     h1: (props: { children: React.ReactNode }) => (
       <h1 className="text-2xl font-staatliches mb-4 text-jumbo-900">
@@ -381,10 +357,10 @@ const ProjectDetailPage: React.FC = () => {
       </h2>
     ),
     p: (props: { children: React.ReactNode }) => (
-      <p className="mb-4 text-base leading-relaxed font-light text-jumbo-950">
+      <p className="mb-4 text-sm sm:text-base leading-relaxed font-light text-jumbo-950">
         {props.children}
       </p>
-    ), // Mantido text-base como no seu original
+    ),
     a: (props: { children: React.ReactNode; url: string }) => (
       <a
         href={props.url}
@@ -396,21 +372,25 @@ const ProjectDetailPage: React.FC = () => {
       </a>
     ),
     ul: (props: { children: React.ReactNode }) => (
-      <ul className="mb-4 ml-5 list-disc text-jumbo-800">{props.children}</ul>
-    ), // Mantido sem text-sm/base
+      <ul className="mb-4 ml-5 list-disc text-jumbo-800 text-sm sm:text-base">
+        {props.children}
+      </ul>
+    ),
     ol: (props: { children: React.ReactNode }) => (
-      <ol className="mb-4 ml-5 list-decimal text-jumbo-800">
+      <ol className="mb-4 ml-5 list-decimal text-jumbo-800 text-sm sm:text-base">
         {props.children}
       </ol>
-    ), // Mantido sem text-sm/base
+    ),
     li: (props: { children: React.ReactNode }) => (
-      <li className="mb-1 text-jumbo-800">{props.children}</li>
-    ), // Mantido sem text-sm/base
+      <li className="mb-1 text-jumbo-800 text-sm sm:text-base">
+        {props.children}
+      </li>
+    ),
     strong: (props: { children: React.ReactNode }) => (
-      <strong className="font-sans font-bold mb-4 text-jumbo-900">
+      <strong className="font-sans font-bold text-jumbo-900">
         {props.children}
       </strong>
-    ),
+    ), // Removido mb-4
     em: (props: { children: React.ReactNode }) => (
       <em className="italic text-jumbo-800">{props.children}</em>
     ),
@@ -420,10 +400,10 @@ const ProjectDetailPage: React.FC = () => {
       </code>
     ),
     blockquote: (props: { children: React.ReactNode }) => (
-      <blockquote className="border-l-4 border-jumbo-300 pl-4 italic my-4 text-jumbo-600">
+      <blockquote className="border-l-4 border-jumbo-300 pl-4 italic my-4 text-jumbo-600 text-sm sm:text-base">
         {props.children}
       </blockquote>
-    ), // Mantido sem text-sm/base
+    ),
     hr: () => <hr className="my-6 border-t border-jumbo-200" />,
     img: (props: { url: string; alt?: string }) => (
       <img
@@ -434,7 +414,6 @@ const ProjectDetailPage: React.FC = () => {
     ),
   }
 
-  // Render Loading (mantido)
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -442,18 +421,12 @@ const ProjectDetailPage: React.FC = () => {
       </div>
     )
   }
-
-  // Render Not Found (mantido)
   if (projectNotFound) {
     return <NotFoundPage />
   }
-
-  // Render Error (mantido)
   if (error) {
     return (
-      <div className="container mx-auto max-w-7xl px-16 sm:px-8 py-12">
-        {' '}
-        {/* Mantido seu padding original aqui */}
+      <div className="container mx-auto max-w-7xl px-4 sm:px-8 py-12">
         <h2 className="text-xl font-bold text-red-500 mb-4">
           {isGerman ? 'Fehler' : 'Error'}
         </h2>
@@ -467,16 +440,10 @@ const ProjectDetailPage: React.FC = () => {
       </div>
     )
   }
-
-  // Render Not Found (mantido)
   if (!project) {
-    console.warn(
-      'ProjectDetailPage: Rendering NotFoundPage as fallback because project is null after loading without specific errors.',
-    )
     return <NotFoundPage />
   }
 
-  // Prepare labels (mantido)
   const labels = {
     for: isGerman ? 'FÜR' : 'FOR',
     at: isGerman ? 'BEI' : 'AT',
@@ -486,7 +453,6 @@ const ProjectDetailPage: React.FC = () => {
   const heroImageAlt = isGerman
     ? project.title_de || project.title
     : project.title_en || project.title
-  // Prepare errorMessages (mantido)
   const errorMessages = {
     title: isGerman
       ? 'Fehler beim Rendern des Inhalts'
@@ -497,32 +463,44 @@ const ProjectDetailPage: React.FC = () => {
     reloadButton: isGerman ? 'Seite neu laden' : 'Reload Page',
   }
 
+  // ---- JSX de Retorno Principal ----
   return (
-    <div className="w-full mx-auto p-0 relative max-w-[1440px]">
+    // Div raiz da página: w-full p-0 para permitir que Hero e fundos das colunas sejam full-bleed.
+    <div className="w-full p-0 relative">
       <div
         className={`fixed top-0 left-0 right-0 bottom-0 bg-black z-[100] pointer-events-none transition-opacity duration-500 ease-out ${
           transitionComplete ? 'opacity-0' : 'opacity-100'
         }`}
       ></div>
-
-      {/* Hero Image */}
-      <div aria-label={heroImageAlt} ref={imageRef}>
-        {' '}
+      {/* Hero Image - Ocupa 100% da largura da tela */}
+      <div aria-label={heroImageAlt} ref={imageRef} className="w-full">
         <HeroImage
           src={heroImageSrc}
           fallbackSrc={heroImageFallback}
           alt={heroImageAlt}
         />
       </div>
-
-      {/* Detalhes do Projeto */}
-      <div className="w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {' '}
-          {/* Este grid está DENTRO do max-w-[1440px] */}
-          {/* Coluna Esquerda */}
-          <div className="bg-jumbo-950 text-white">
-            <div className="p-8 md:p-16 sm:p-8">
+      {/* Seção de Detalhes do Projeto - Fundos full-bleed, conteúdo centralizado */}
+      <div className="w-full relative">
+        {/* Fundos Full-Bleed (visíveis em md+) */}
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-jumbo-950 md:block hidden -z-10"></div>
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-jumbo-100 md:block hidden -z-10"></div>
+        {/* O GRID das colunas agora é diretamente filho do contêiner .w-full.relative
+            Isso permite que as colunas (com seus fundos) se estendam de borda a borda no mobile.
+            No desktop, os fundos absolutos cuidam do full-bleed.
+            O z-0 garante que o grid fique sobre os fundos absolutos.
+        */}
+        <div className="grid grid-cols-1 md:grid-cols-2 relative z-0">
+          {/* Coluna Esquerda (Preta) */}
+          <div className="bg-jumbo-950 text-white md:bg-transparent">
+            {' '}
+            {/* Fundo para mobile, transparente para desktop */}
+            {/* Wrapper de CONTEÚDO: centraliza e limita a largura do conteúdo DENTRO da coluna. Aplica padding lateral e vertical. */}
+            <div className="mx-auto w-full max-w-[960px] md:max-w-[calc(1920px/2)] px-8 py-12 sm:px-6 sm:py-12 md:px-8 md:py-16 lg:px-12 lg:py-20 xl:px-16 xl:py-24">
+              {/* Considerar ajustar 'max-w-[calc(1920px/2)]' para algo como max-w-3xl ou 4xl para melhor legibilidade do texto
+                dentro de uma coluna que tem no máximo 960px de largura.
+                Ex: max-w-3xl (768px) ou remover e deixar o padding lateral (px-*) controlar.
+            */}
               <CategoryChip
                 category={
                   isGerman
@@ -530,18 +508,14 @@ const ProjectDetailPage: React.FC = () => {
                     : project.category_en || project.category
                 }
               />
-              {/* Título com Animação */}
-              <div className="mb-8 md:mb-16">
-                {/* >>> MODIFICAÇÃO 6: Usando whileInView <<< */}
+              <div className="mb-12 md:mb-16">
                 <motion.div
-                  // ref={titleObserverRef} // Removido
                   initial={{ opacity: 0, x: -40 }}
-                  // animate={isTitleVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }} // Removido
-                  whileInView={{ opacity: 1, x: 0 }} // Adicionado
-                  viewport={{ once: true, amount: 0.1 }} // Adicionado (Trigger quando 10% visível, apenas uma vez)
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
                   transition={{ duration: 0.9, ease: 'easeOut' }}
                 >
-                  <h2 className="[text-wrap:balance] text-4xl md:text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
+                  <h2 className="[text-wrap:balance] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight uppercase font-staatliches tracking-wide">
                     <TranslatedText
                       german={project.title_de || project.title}
                       english={project.title_en || project.title}
@@ -550,64 +524,71 @@ const ProjectDetailPage: React.FC = () => {
                   </h2>
                 </motion.div>
                 {project.title_bra && (
-                  <h3 className="text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
+                  <h3 className="text-2xl sm:text-3xl font-staatliches uppercase mt-2 text-jumbo-300">
                     {project.title_bra}
                   </h3>
                 )}
               </div>
-              {/* Metadata */}
-              <div className="mb-8 grid grid-cols-[3rem_1fr] gap-y-4">
+              <div className="mb-8 grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 sm:gap-y-4">
                 {project.client && (
                   <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                    <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                       {labels.for}
                     </div>
-                    <div className="font-inter font-light">
+                    <div className="text-sm sm:text-base font-inter font-light">
                       {project.client}
                     </div>
                   </>
                 )}
                 {project.agency && (
                   <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                    <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                       {labels.at}
                     </div>
-                    <div className="font-inter font-light">
+                    <div className="text-sm sm:text-base font-inter font-light">
                       {project.agency}
                     </div>
                   </>
                 )}
                 {project.creativeDirection && (
                   <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                    <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                       {labels.with}
                     </div>
-                    <div className="font-inter font-light">
+                    <div className="text-sm sm:text-base font-inter font-light">
                       {project.creativeDirection}
                     </div>
                   </>
                 )}
                 {project.year && (
                   <>
-                    <div className="font-staatliches uppercase tracking-wider text-jumbo-300">
+                    <div className="text-sm sm:text-base font-staatliches uppercase tracking-wider text-jumbo-300 whitespace-nowrap pt-px sm:pt-0">
                       {labels.when}
                     </div>
-                    <div className="font-inter font-light">{project.year}</div>
+                    <div className="text-sm sm:text-base font-inter font-light">
+                      {project.year}
+                    </div>
                   </>
                 )}
               </div>
               {project.copyright && (
-                <div className="font-inter font-light text-sm text-jumbo-300">
+                <div className="text-xs sm:text-sm font-inter font-light text-jumbo-300">
                   {project.copyright}
                 </div>
               )}
             </div>
           </div>
-          {/* Coluna Direita */}
-          <div className="bg-jumbo-100 text-jumbo-950">
-            <div className="p-8 md:p-24 sm:p-16">
-              <div className="max-w-xl">
-                <div className="prose prose-sm max-w-none">
+
+          {/* Coluna Direita (Cinza Claro) */}
+          <div className="bg-jumbo-100 text-jumbo-950 md:bg-transparent">
+            {' '}
+            {/* Fundo para mobile, transparente para desktop */}
+            {/* Wrapper de CONTEÚDO: centraliza e limita a largura do conteúdo DENTRO da coluna. */}
+            <div className="mx-auto w-full max-w-[960px] md:max-w-[calc(1920px/2)] px-8 py-12 sm:px-6 sm:py-12 md:px-8 md:py-16 lg:px-12 lg:py-20 xl:px-16 xl:py-24">
+              <div className="max-w-xl mx-auto">
+                {' '}
+                {/* Bloco da prosa, já centralizado pelo pai com mx-auto e tem seu próprio max-w-xl */}
+                <div className="prose prose-sm sm:prose-base max-w-none">
                   <ErrorBoundary
                     isGerman={isGerman}
                     fallback={
@@ -622,7 +603,7 @@ const ProjectDetailPage: React.FC = () => {
                     }
                   >
                     {typeof currentDescription === 'string' ? (
-                      <p className="[text-wrap:balance] mb-6 text-base leading-relaxed font-light text-jumbo-950">
+                      <p className="[text-wrap:balance] mb-6 text-sm sm:text-base leading-relaxed font-light text-jumbo-950">
                         {currentDescription}
                       </p>
                     ) : currentDescription ? (
@@ -633,7 +614,7 @@ const ProjectDetailPage: React.FC = () => {
                         />
                       </div>
                     ) : (
-                      <p className="text-jumbo-500 italic">
+                      <p className="text-jumbo-500 italic text-sm sm:text-base">
                         {isGerman
                           ? 'Keine Beschreibung für dieses Projekt verfügbar.'
                           : 'No description available for this project.'}
@@ -644,16 +625,15 @@ const ProjectDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
+        </div>{' '}
+        {/* Fim do Grid */}
+      </div>{' '}
+      {/* Fim da Seção Detalhes (w-full relative) */}
       {/* Galeria e Projetos Relacionados */}
       {project && projects && projects.length > 0 && (
-        // Este div continuará respeitando o max-w-[1440px] do pai principal
         <div className="w-full">
-          {/* Removido max-w-[1920px] daqui, pois o pai já limita a 1440px */}
-          {/* Adicionado padding vertical e lateral padrão do container */}
-          <div className="mx-auto w-full ">
+          {/* Container da Galeria: sem padding lateral, padding vertical responsivo, sem pt no desktop */}
+          <div className="mx-auto w-full max-w-[1920px] px-0 md:pt-0 pb-16 md:pb-24">
             <ErrorBoundary
               isGerman={isGerman}
               fallback={
@@ -694,7 +674,7 @@ const ProjectDetailPage: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </div> // Fim do Div Raiz da Página
   )
 }
 

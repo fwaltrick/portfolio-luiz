@@ -1,8 +1,10 @@
 # Graphic Designer Portfolio
 
+<video src="https://github.com/usuario/repositorio/releases/download/v0.1/demo.webm" autoplay loop muted playsinline style="max-width:600px;"></video>
+
 A portfolio for graphic designer Luiz Dominguez, built with React, TypeScript, Tailwind, and a TinaCMS headless setup. The project's goal was to create a fast, accessible, and easily updatable platform that effectively showcases visual work to a bilingual (EN/DE) audience.
 
-The site is statically generated for optimal performance and uses a Git-based workflow for content management, allowing for real-time visual editing. The project is live at **[www.luizdominguez.com](https://www.luizdominguez.com)**.
+The site is statically generated for optimal performance and uses a Git-based workflow for content management, allowing for real-time visual editing. The project is live at **[luizdominguez.com](https://www.luizdominguez.com)**.
 
 # Core Features
 

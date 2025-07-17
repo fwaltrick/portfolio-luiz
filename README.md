@@ -1,54 +1,37 @@
-# React + TypeScript + Vite
+# Graphic Designer Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A portfolio for graphic designer Luiz Dominguez, built with React, TypeScript, Tailwind, and a TinaCMS headless setup. The project's goal was to create a fast, accessible, and easily updatable platform that effectively showcases visual work to a bilingual (EN/DE) audience.
 
-Currently, two official plugins are available:
+The site is statically generated for optimal performance and uses a Git-based workflow for content management, allowing for real-time visual editing. The project is live at **[www.luizdominguez.com](https://www.luizdominguez.com)**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Core Features
 
-## Expanding the ESLint configuration
+- **Dynamic Project Gallery:** Content is managed via MDX and rendered server-side. Includes a category-based filtering system and a feature-rich image lightbox.
+- **Headless CMS Integration:** TinaCMS provides a full content management workflow, including an automated image optimization pipeline using Sharp.
+- **Bilingual Architecture:** Full internationalization (i18n) support for English and German, managed with i18next, featuring automatic language detection.
+- **Performance Optimization:** Fast load times achieved through static site generation, automatic image compression, lazy loading, and component-level code splitting.
+- **Declarative UI Animations**: Implemented with Framer Motion for page transitions, list animations, and micro-interactions to provide clear visual feedback.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Tech Stack
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### Frontend & Architecture
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **React 18**: Component-based UI library.
+- **TypeScript**: Static typing for JavaScript.
+- **Vite**: High-performance build tool and dev server.
+- **TailwindCSS 4**: Utility-first CSS framework.
+- **Framer Motion**: Animation library for React.
+- **React Router DOM**: Client-side routing and code splitting.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Content & Data
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- **TinaCMS**: Git-based headless CMS.
+- **MDX**: Markdown with JSX for rich content authoring.
+- **Sharp**: High-performance image processing library.
+- **i18next**: Internationalization framework.
+
+### UI Components & Libraries
+
+- **Radix UI**: Headless, accessible UI primitives.
+- **Heroicons**: SVG icon library.
+- **Yet Another React Lightbox**: Image gallery component.

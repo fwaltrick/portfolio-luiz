@@ -1,6 +1,6 @@
 # Graphic Designer Portfolio
 
-<video src="https://github.com/fwaltrick/portfolio-luiz/blob/main/src/assets/interaction.webm" autoplay loop muted playsinline style="max-width:600px;"></video>
+![Demonstração do Projeto](src/assets/interact.gif)
 
 A portfolio for graphic designer Luiz Dominguez, built with React, TypeScript, Tailwind, and a TinaCMS headless setup. The project's goal was to create a fast, accessible, and easily updatable platform that effectively showcases visual work to a bilingual (EN/DE) audience.
 

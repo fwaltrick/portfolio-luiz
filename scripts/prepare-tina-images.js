@@ -28,41 +28,31 @@ async function prepareProjectImages(projectFile) {
   }
 
   // Extrair caminhos de imagem
-  const coverMatch = content.match(/coverImage: "([^"]+)"/)
-  const img01Match = content.match(/img01: "([^"]+)"/)
-  const galleryMatches = [...content.matchAll(/image: "([^"]+)"/g)]
+  // Suporta formato novo (coverImageConfig.image sem aspas) e antigo (coverImage: "path")
+  const newCoverMatch = content.match(
+    /coverImageConfig:\s*\n\s+image:\s*["']?([^"'\s\n]+)["']?/,
+  )
+  const oldCoverMatch = content.match(/^coverImage:\s*["']?([^"'\s\n]+)["']?/m)
+  const coverImagePath = newCoverMatch?.[1] || oldCoverMatch?.[1]
+
+  // Imagens de galeria: itens de lista com "- image:" (sem quotes ou com quotes)
+  const galleryMatches = [
+    ...content.matchAll(/^\s+-\s+image:\s*["']?([^"'\s\n]+)["']?/gm),
+  ]
 
   // Processar imagem de capa
-  if (coverMatch && coverMatch[1]) {
-    const imagePath = coverMatch[1]
-    const sourcePath = path.join(projectRoot, 'public', imagePath)
+  if (coverImagePath) {
+    const sourcePath = path.join(projectRoot, 'public', coverImagePath)
 
     if (fs.existsSync(sourcePath)) {
-      const targetPath = path.join(projectDir, 'hero.jpg')
+      const ext = path.extname(sourcePath)
+      const targetPath = path.join(projectDir, `cover${ext}`)
       fs.copyFileSync(sourcePath, targetPath)
       console.log(
-        `  ✓ Copiada imagem de capa: ${path.basename(sourcePath)} -> hero.jpg`,
+        `  ✓ Copiada imagem de capa: ${path.basename(sourcePath)} -> cover${ext}`,
       )
     } else {
       console.log(`  ⚠️ Imagem de capa não encontrada: ${sourcePath}`)
-    }
-  }
-
-  // Processar imagem destacada
-  if (img01Match && img01Match[1]) {
-    const imagePath = img01Match[1]
-    const sourcePath = path.join(projectRoot, 'public', imagePath)
-
-    if (fs.existsSync(sourcePath)) {
-      const targetPath = path.join(projectDir, 'img01.jpg')
-      fs.copyFileSync(sourcePath, targetPath)
-      console.log(
-        `  ✓ Copiada imagem destacada: ${path.basename(
-          sourcePath,
-        )} -> img01.jpg`,
-      )
-    } else {
-      console.log(`  ⚠️ Imagem destacada não encontrada: ${sourcePath}`)
     }
   }
 
@@ -73,10 +63,10 @@ async function prepareProjectImages(projectFile) {
       const sourcePath = path.join(projectRoot, 'public', imagePath)
 
       if (fs.existsSync(sourcePath)) {
-        // Formatar o índice com zero à esquerda (01.jpg, 02.jpg, etc.)
+        const ext = path.extname(sourcePath)
         const targetPath = path.join(
           projectDir,
-          `${String(index + 1).padStart(2, '0')}.jpg`,
+          `${String(index + 1).padStart(2, '0')}${ext}`,
         )
         fs.copyFileSync(sourcePath, targetPath)
         console.log(
@@ -121,12 +111,6 @@ async function main() {
   }
 
   console.log('\n✅ Preparação de imagens concluída!')
-  console.log('🚀 Execute o script de otimização para cada projeto:')
-
-  // Mostrar comandos para executar o script de otimização
-  processedSlugs.forEach((slug) => {
-    console.log(`   node optimize-images.js ${slug}`)
-  })
 }
 
 // Executar o script

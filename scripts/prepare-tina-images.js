@@ -42,17 +42,22 @@ async function prepareProjectImages(projectFile) {
 
   // Processar imagem de capa
   if (coverImagePath) {
-    const sourcePath = path.join(projectRoot, 'public', coverImagePath)
-
-    if (fs.existsSync(sourcePath)) {
-      const ext = path.extname(sourcePath)
-      const targetPath = path.join(projectDir, `cover${ext}`)
-      fs.copyFileSync(sourcePath, targetPath)
-      console.log(
-        `  ✓ Copiada imagem de capa: ${path.basename(sourcePath)} -> cover${ext}`,
-      )
+    // Pular se a imagem já está no diretório projects/ (já está no lugar certo)
+    if (coverImagePath.startsWith('/images/projects/')) {
+      console.log(`  ℹ️ Capa já está no diretório correto: ${coverImagePath}`)
     } else {
-      console.log(`  ⚠️ Imagem de capa não encontrada: ${sourcePath}`)
+      const sourcePath = path.join(projectRoot, 'public', coverImagePath)
+
+      if (fs.existsSync(sourcePath)) {
+        const ext = path.extname(sourcePath)
+        const targetPath = path.join(projectDir, `cover${ext}`)
+        fs.copyFileSync(sourcePath, targetPath)
+        console.log(
+          `  ✓ Copiada imagem de capa: ${path.basename(sourcePath)} -> cover${ext}`,
+        )
+      } else {
+        console.log(`  ⚠️ Imagem de capa não encontrada: ${sourcePath}`)
+      }
     }
   }
 
@@ -60,6 +65,13 @@ async function prepareProjectImages(projectFile) {
   galleryMatches.forEach((match, index) => {
     if (match && match[1]) {
       const imagePath = match[1]
+
+      // Pular se a imagem já está no diretório projects/ (já está no lugar certo)
+      if (imagePath.startsWith('/images/projects/')) {
+        console.log(`  ℹ️ Galeria #${index + 1} já está no diretório correto: ${imagePath}`)
+        return
+      }
+
       const sourcePath = path.join(projectRoot, 'public', imagePath)
 
       if (fs.existsSync(sourcePath)) {

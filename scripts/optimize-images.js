@@ -90,9 +90,26 @@ async function analyzeImageContent(inputPath) {
   }
 }
 
+// Verificar se a imagem já foi processada e está atualizada
+function isAlreadyProcessed(inputPath, outputDir, outputFilename, isCoverImage) {
+  const inputMtime = fs.statSync(inputPath).mtimeMs
+  const checkFile = isCoverImage
+    ? path.join(outputDir, `${outputFilename}.jpg`)
+    : path.join(outputDir, `${outputFilename}-lg.jpg`)
+  return fs.existsSync(checkFile) && fs.statSync(checkFile).mtimeMs > inputMtime
+}
+
 // Otimizar uma única imagem com alta qualidade
 async function optimizeImage(inputPath, outputDir, filename, type = 'gallery') {
   try {
+    const outputFilename = getOutputFilename(filename, type)
+    const isCoverImage = type === 'hero'
+
+    if (isAlreadyProcessed(inputPath, outputDir, outputFilename, isCoverImage)) {
+      console.log(`  ⏭️ Pulando ${path.basename(inputPath)} (já processada e atualizada)`)
+      return true
+    }
+
     // Analisar características da imagem
     const imageInfo = await analyzeImageContent(inputPath)
 
@@ -103,10 +120,6 @@ async function optimizeImage(inputPath, outputDir, filename, type = 'gallery') {
         imageInfo.contentType
       }`,
     )
-
-    // Determinar nome do arquivo de saída
-    const outputFilename = getOutputFilename(filename, type)
-    const isCoverImage = type === 'hero'
 
     // Para imagens de capa, gerar apenas versão completa e média
     if (isCoverImage) {
